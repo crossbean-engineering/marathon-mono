@@ -1,0 +1,40 @@
+### Generate a batch of wristbands with auto codes (admin) — count default 10, max 100
+# @name generate
+POST {{baseUrl}}/wristbands/generate
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "count": 5
+}
+
+### List wristbands (admin) — optional status filter
+GET {{baseUrl}}/wristbands?status=available
+Authorization: Bearer {{accessToken}}
+
+### Get a wristband
+GET {{baseUrl}}/wristbands/REPLACE_WITH_WRISTBAND_ID
+Authorization: Bearer {{accessToken}}
+
+### Update a wristband (status / isPrinted) (admin)
+PUT {{baseUrl}}/wristbands/REPLACE_WITH_WRISTBAND_ID
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "isPrinted": true
+}
+
+### Delete a wristband (admin)
+DELETE {{baseUrl}}/wristbands/REPLACE_WITH_WRISTBAND_ID
+Authorization: Bearer {{accessToken}}
+
+### Redeem a wristband by participant code (admin/agent)
+POST {{baseUrl}}/wristbands/redeem
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "wristbandCode": "REPLACE_WITH_WRISTBAND_CODE",
+  "participantCode": "REPLACE_WITH_PARTICIPANT_CODE"
+}

@@ -1,0 +1,61 @@
+enum PaymentStatus {
+  pending
+  completed
+  failed
+}
+
+enum PaymentNetwork {
+  MTN
+  VODAFONE
+  AIRTELTIGO
+}
+
+// How a settlement was satisfied. `waived` covers registrations settled without
+// money moving — e.g. a 100%-off coupon.
+enum PaymentMethod {
+  card
+  momo
+  cash
+  waived
+}
+
+model Payment {
+  id                String         @id @default(dbgenerated("uuid_generate_v1()")) @db.Uuid
+  amount            Int // pesewas
+  currency          String         @default("GHS")
+  status            PaymentStatus  @default(pending)
+  provider          String         @default("mojopay")
+  gateway           String         @default("MojoCollection")
+  orderId           String         @unique @map("order_id")
+  transactionId     String         @unique @map("provider_transaction_id")
+  // Channel-specific details: set only when paymentMethod is `momo`, null for
+  // card/cash/waived settlements.
+  momoNumber        String?         @map("momo_number")
+  network           PaymentNetwork?
+  paymentMethod     PaymentMethod   @default(momo) @map("payment_method")
+  email             String?
+  requestPayload    Json?          @map("request_payload") @db.JsonB
+  responsePayload   Json?          @map("response_payload") @db.JsonB
+  invoicePayload    Json?          @map("invoice_payload") @db.JsonB
+  reason            String?
+  requiresAttention Boolean        @default(false) @map("requires_attention")
+  originalAmount    Int?           @map("original_amount") // pre-discount price, pesewas
+  discountAmount    Int?           @map("discount_amount") // amount taken off, pesewas
+  couponCode        String?        @map("coupon_code") // snapshot of applied code
+  couponId          String?        @map("coupon_id") @db.Uuid
+  performedBy       String         @map("performed_by") @db.Uuid
+  confirmedAt       DateTime?      @map("confirmed_at")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  participant Participant?
+  performer   User        @relation("PaymentPerformer", fields: [performedBy], references: [id])
+  coupon      Coupon?     @relation(fields: [couponId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([paymentMethod])
+  @@index([requiresAttention])
+  @@index([performedBy])
+  @@index([couponId])
+  @@map("payments")
+}

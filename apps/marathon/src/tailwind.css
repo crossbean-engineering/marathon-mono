@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Colors - v4 requires --color- prefix */
+  --color-background: oklch(0.9702 0 0);
+  --color-foreground: oklch(0.35 0.02 45);
+  --color-card: oklch(1 0 0);
+  --color-card-foreground: oklch(0.35 0.02 45);
+  --color-popover: oklch(1 0 0);
+  --color-popover-foreground: oklch(0.35 0.02 45);
+  --color-primary: oklch(0.7309 0.1226 88.04);
+  --color-primary-foreground: oklch(1 0 0);
+  --color-secondary: oklch(0.92 0.02 75);
+  --color-secondary-foreground: oklch(0.35 0.02 45);
+  --color-muted: oklch(0.90 0.01 75);
+  --color-muted-foreground: oklch(0.60 0.01 45);
+  --color-accent: oklch(0.65 0.15 85);
+  --color-accent-foreground: oklch(1 0 0);
+  --color-destructive: oklch(0.65 0.25 25);
+  --color-destructive-foreground: oklch(0.98 0.01 240);
+  --color-border: oklch(0.9219 0 0);
+  --color-input: oklch(0.88 0.01 75);
+  --color-ring: oklch(0.7309 0.1226 88.04);
+  
+  /* GIS brand */
+  --color-gis: #126e3c;
+  --color-gis-dark: #0d5530;
+  --color-gis-light: #178a4a;
+  --color-gis-secondary: #f9d900;
+  --color-gis-secondary-dark: #d4b800;
+
+  /* Custom colors */
+  --color-golden: oklch(0.65 0.15 85);
+  --color-golden-light: oklch(0.75 0.10 85);
+  --color-olive: oklch(0.7309 0.1226 88.04);
+  --color-olive-light: oklch(0.60 0.06 130);
+  --color-cream: oklch(0.96 0.02 75);
+  --color-cream-dark: oklch(0.92 0.02 75);
+  
+  /* Border radius */
+  --radius: 0.5rem;
+  
+  /* Font families */
+  --font-display: 'IBM Plex Sans', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  @theme {
+    /* Add dark mode colors if needed */
+    /* --color-background: oklch(0.15 0.02 75); */
+    /* --color-foreground: oklch(0.95 0.01 75); */
+    /* ... other dark mode overrides */
+  }
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+@utility scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+}
+
+@utility font-body {
+  font-family: var(--font-body);
+}

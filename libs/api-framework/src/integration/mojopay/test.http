@@ -1,0 +1,147 @@
+### MojoPay integration — manual request book
+### Fill in the variables below, then run requests with the VS Code REST Client extension.
+
+@paymentApiUrl = https://portal.cs-pay.app
+@invoiceApiUrl = https://api.cs-pay.app/v1
+@collectionBaseUrl = https://api.cs-pay.app/v3
+@directDebitBaseUrl = https://api-dev.cs-pay.app/v3/dd
+
+@appId = 3979971769
+@apiKey = 46265147
+# base64("{{appId}}:{{apiKey}}") — regenerate if either credential changes
+@collectionAuth = Basic Mzk3OTk3MTc2OTo0NjI2NTE0Nw==
+@ddAppId = your-dd-app-id
+@ddAppKey = your-dd-app-key
+
+@mobile = +233543460633
+@network = MTN
+@feeTypeCode = your-fee-type-code
+@orderId = TEST-ORDER-0001
+@mandateId = replace-after-mandate-approved
+@merchantReferenceId = TEST-MANDATE-0001
+
+
+### ============================================================
+### Hosted checkout (MojoPayIntegration)
+### ============================================================
+
+### Initiate payment — returns redirect_url for the hosted page
+# @name initiatePayment
+POST {{paymentApiUrl}}/interapi/ProcessPayment
+Content-Type: application/json
+
+{
+  "app_id": "{{appId}}",
+  "app_key": "{{apiKey}}",
+  "name": "Test Donor",
+  "mobile": "{{mobile}}",
+  "email": "test@example.com",
+  "feetypecode": "{{feeTypeCode}}",
+  "currency": "GHS",
+  "amount": 1,
+  "order_id": "{{orderId}}",
+  "order_desc": "Test donation",
+  "return_url": "https://example.com/payment/callback"
+}
+
+### Query invoice status — status_message "PAID BY CLIENT" means completed
+POST {{invoiceApiUrl}}/Interapi.svc/QueryInvoiceStatus
+Content-Type: application/json
+
+{
+  "app_id": "{{appId}}",
+  "app_key": "{{apiKey}}",
+  "order_id": "{{orderId}}"
+}
+
+
+### ============================================================
+### Collection / direct momo charge (MojoCollectionIntegration)
+### Basic auth: base64(appId:apiKey)
+### ============================================================
+
+### Init payment — pushes a prompt to the customer's phone
+# @name collectionInitPayment
+POST {{collectionBaseUrl}}/api/payments/initpayment
+Content-Type: application/json
+Authorization: {{collectionAuth}}
+
+{
+  "CustomerName": "Test Donor",
+  "Network": "{{network}}",
+  "Mobile": "{{mobile}}",
+  "Email": "test@example.com",
+  "Currency": "GHS",
+  "CountryCode": "GHA",
+  "Amount": 1,
+  "OrderId": "{{orderId}}",
+  "OrderDesc": "Test donation"
+}
+
+### Query collection status
+GET {{collectionBaseUrl}}/api/payments/status/{{orderId}}
+Authorization: {{collectionAuth}}
+
+
+### ============================================================
+### Direct debit (MojoDirectDebitIntegration)
+### Run ddAuth first — every other DD request reuses its AccessToken.
+### ============================================================
+
+### Authenticate
+# @name ddAuth
+POST {{directDebitBaseUrl}}/api/auth/token
+Content-Type: application/json
+
+{
+  "AppId": "{{ddAppId}}",
+  "AppKey": "{{ddAppKey}}"
+}
+
+### Create mandate — customer approves the prompt on their phone
+POST {{directDebitBaseUrl}}/api/mandate/create-mandate
+Content-Type: application/json
+Authorization: Bearer {{ddAuth.response.body.AccessToken}}
+
+{
+  "Mobile": "{{mobile}}",
+  "Network": "{{network}}",
+  "Amount": 1,
+  "Currency": "GHS",
+  "Frequency": "MONTHLY",
+  "FeeType": "DIRECTDEBIT",
+  "Country": "GHA",
+  "StartDate": "2026-08-01",
+  "EndDate": "2027-08-01",
+  "DayOfDebit": 1,
+  "PlatformScheduling": true,
+  "Data": {
+    "MerchantReferenceId": "{{merchantReferenceId}}",
+    "Description": "Monthly recurring donation"
+  }
+}
+
+### Mandate status — 404 with StatusCode DD_NOT_FOUND when unknown
+GET {{directDebitBaseUrl}}/api/mandate/status?MerchantReferenceId={{merchantReferenceId}}
+Authorization: Bearer {{ddAuth.response.body.AccessToken}}
+
+### Cancel mandate
+POST {{directDebitBaseUrl}}/api/mandate/cancel-mandate
+Content-Type: application/json
+Authorization: Bearer {{ddAuth.response.body.AccessToken}}
+
+{
+  "Mobile": "{{mobile}}",
+  "MandateId": "{{mandateId}}",
+  "Reason": "Customer requested cancellation"
+}
+
+### Direct debit payment status
+POST {{directDebitBaseUrl}}/api/DirectDebit/status
+Content-Type: application/json
+Authorization: Bearer {{ddAuth.response.body.AccessToken}}
+
+{
+  "MandateId": "{{mandateId}}",
+  "TransactionReferenceId": "{{orderId}}"
+}

@@ -1,0 +1,42 @@
+{
+  "name": "marathon-api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/marathon-api/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "marathon-api:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "marathon-api:build:development"
+        },
+        "production": {
+          "buildTarget": "marathon-api:build:production"
+        }
+      }
+    },
+    "generate-prisma": {
+      "command": "prisma generate --schema ./prisma",
+      "options": {
+        "cwd": "apps/marathon-api"
+      }
+    },
+    "prisma-migrate-dev": {
+      "command": "prisma migrate dev --schema ./prisma",
+      "options": {
+        "cwd": "apps/marathon-api"
+      }
+    },
+    "prisma-studio": {
+      "command": "prisma studio --config=./prisma.config.ts",
+      "options": {
+        "cwd": "apps/marathon-api"
+      }
+    }
+  }
+}

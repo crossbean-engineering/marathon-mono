@@ -1,0 +1,14 @@
+### Send OTP (SMS) to a phone number
+# In development the code is logged by the server and stored in Redis under
+# `otp:dev:<sessionId>` — read it there to complete signup/login.
+# @name sendOtp
+POST {{baseUrl}}/otp/send
+Content-Type: application/json
+
+{
+  "identifier": "201994916",
+  "provider": "sms"
+}
+
+### Grab the sessionId from the response above:
+# {{sendOtp.response.body.data.sessionId}}

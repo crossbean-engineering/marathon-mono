@@ -1,0 +1,31 @@
+### Verify a payment by transactionId (poll; also activates the participant on success)
+POST {{baseUrl}}/payments/verify
+Content-Type: application/json
+
+{
+  "transactionId": "REPLACE_WITH_32CHAR_TRANSACTION_ID"
+}
+
+### Mojo collection callback (public, guarded by trustId path param)
+POST {{baseUrl}}/payments/callback/win-pc-2f8a1b4e
+Content-Type: application/json
+
+{
+  "orderId": "REPLACE_WITH_32CHAR_TRANSACTION_ID"
+}
+
+### List payments (admin) — filter by method and/or status
+GET {{baseUrl}}/payments
+Authorization: Bearer {{accessToken}}
+
+### List payments filtered by method (card | momo | cash)
+GET {{baseUrl}}/payments?method=momo
+Authorization: Bearer {{accessToken}}
+
+### List payments filtered by status (pending | completed | failed)
+GET {{baseUrl}}/payments?status=completed
+Authorization: Bearer {{accessToken}}
+
+### List payments filtered by method + status
+GET {{baseUrl}}/payments?method=momo&status=failed
+Authorization: Bearer {{accessToken}}

@@ -1,0 +1,32 @@
+enum UserRole {
+  user
+  agent
+  admin
+}
+
+enum UserStatus {
+  active
+  suspended
+}
+
+model User {
+  id              String     @id @default(dbgenerated("uuid_generate_v1()")) @db.Uuid
+  firstName       String     @map("first_name")
+  lastName        String     @map("last_name")
+  phone           String     @unique
+  email           String?    @unique
+  idNumber        String?    @map("id_number")
+  location        String?
+  role            UserRole   @default(user)
+  status          UserStatus @default(active)
+  isPhoneVerified Boolean    @default(false) @map("is_phone_verified")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  participants      Participant[]
+  paymentsPerformed Payment[]     @relation("PaymentPerformer")
+
+  @@index([phone])
+  @@index([role])
+  @@map("users")
+}

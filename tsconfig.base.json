@@ -1,0 +1,41 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "exactOptionalPropertyTypes": false,
+    "strict": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@api/framework": ["libs/api-framework/src/index.ts"],
+      "@marathon/core": ["libs/marathon-core/src/index.ts"],
+      "@marathon-api/core": ["apps/marathon-api/src/core/index.ts"],
+      "@marathon-api/shared": ["apps/marathon-api/src/shared/index.ts"],
+      "@marathon-api/shared/*": ["apps/marathon-api/src/shared/*"],
+      "@marathon-api/lib": ["apps/marathon-api/src/lib/index.ts"],
+      "@marathon-api/lib/*": ["apps/marathon-api/src/lib/*"],
+      "@marathon-api/integration": [
+        "apps/marathon-api/src/integration/index.ts"
+      ],
+      "@marathon-api/app/*": ["apps/marathon-api/src/app/*"],
+      "@marathon-api/prisma": [
+        "apps/marathon-api/src/generated/prisma/client"
+      ],
+      "@ak-marathon/sdk": ["libs/ak-marathon-sdk/src/index.ts"],
+      "@org/config": ["libs/config/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

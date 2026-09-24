@@ -1,0 +1,32 @@
+### Bootstrap the first admin (public; gated by the shared secret in body)
+# @name bootstrap
+POST {{baseUrl}}/admin/bootstrap
+Content-Type: application/json
+
+{
+  "secret": "vC0bGxd14660a1a526P4eNz5L9hQ8fKq1",
+  "firstName": "Jonathan",
+  "lastName": "Bonzali",
+  "phone": "233201994916",
+  "email": "katbonzali@gmail.com"
+}
+
+### Add an admin / agent user (admin)
+POST {{baseUrl}}/admin/users
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Kofi",
+  "lastName": "Agent",
+  "phone": "233200000009",
+  "role": "agent"
+}
+
+### List users (admin) — optional role filter
+GET {{baseUrl}}/admin/users
+Authorization: Bearer {{accessToken}}
+
+### List users filtered by role
+GET {{baseUrl}}/admin/users?role=agent
+Authorization: Bearer {{accessToken}}

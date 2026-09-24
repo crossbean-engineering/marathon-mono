@@ -1,0 +1,146 @@
+### Buy a package = register a NEW participant + pay via Mojo collection
+# Requires OTP on the paying momo number first (POST /otp/send with that number),
+# then pass otp + otpSessionId. Reuse the returned sessionToken to skip re-OTP.
+# @name buyPackage
+POST {{baseUrl}}/participants/buy
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "packageId": "{{packageId}}",
+  "participant": {
+    "name": "Runner One",
+    "ic": "GHA-987654321",
+    "shirtSize": "L",
+    "gender": "male"
+  },
+  "payment": {
+    "momoNumber": "233240000000",
+    "network": "MTN",
+    "email": "runner@example.com"
+  },
+  "otp": "000000",
+  "otpSessionId": "REPLACE_WITH_OTP_SESSION_ID",
+  "idempotencyKey": "buy-runner-one-001"
+}
+
+@participantId = {{buyPackage.response.body.data.participant.id}}
+@sessionToken = {{buyPackage.response.body.data.sessionToken}}
+
+### Retry a FAILED payment for an existing participant (participantId instead of participant)
+# Reuse sessionToken (within 10 min) to skip OTP.
+POST {{baseUrl}}/participants/buy
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "participantId": "{{participantId}}",
+  "payment": {
+    "momoNumber": "233240000000",
+    "network": "MTN"
+  },
+  "sessionToken": "{{sessionToken}}",
+  "idempotencyKey": "retry-runner-one-002"
+}
+
+### Claim a package free with a 100%-off coupon — register a NEW participant
+# For coupons whose percentOff is 100, so there is nothing to charge: no payment
+# block and no OTP. The participant is active immediately and the settlement is
+# recorded as a `waived` payment of 0 carrying the coupon snapshot.
+# A coupon leaving any balance is rejected here — that goes to /participants/buy.
+# @name claimFreePackage
+POST {{baseUrl}}/participants/claim
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "packageId": "{{packageId}}",
+  "participant": {
+    "name": "Runner Two",
+    "ic": "GHA-123456789",
+    "shirtSize": "M",
+    "gender": "female"
+  },
+  "couponCode": "REPLACE_WITH_100_PERCENT_COUPON",
+  "idempotencyKey": "claim-runner-two-001"
+}
+
+### Claim free for an EXISTING participant whose payment never completed
+POST {{baseUrl}}/participants/claim
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "participantId": "{{participantId}}",
+  "couponCode": "REPLACE_WITH_100_PERCENT_COUPON",
+  "idempotencyKey": "claim-existing-001"
+}
+
+### Check a participant in at the event (admin/agent only)
+# Assigns the race number and records the shirt size issued. runnerNumber is
+# unique across participants, and a participant can only be checked in once.
+# Omit shirtSize to keep the size already on record.
+POST {{baseUrl}}/participants/{{participantId}}/checkin
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "runnerNumber": "1042",
+  "shirtSize": "XL"
+}
+
+### Set collected merchandise (admin/agent only)
+# merchandiseIds is the FINAL state, not a delta — send whatever the checkboxes
+# say. Ids not yet recorded are added, recorded ids left out are removed, and
+# ids already recorded are untouched (keeping their original collectedAt).
+# Send [] to clear everything. Newly added ids must belong to the participant's
+# package; already-recorded ids are grandfathered.
+PUT {{baseUrl}}/participants/{{participantId}}/merchandise
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "merchandiseIds": [
+    "REPLACE_WITH_MERCHANDISE_ID_1",
+    "REPLACE_WITH_MERCHANDISE_ID_2"
+  ]
+}
+
+### Get a participant — includes collectedMerchandise, to render the checkboxes
+GET {{baseUrl}}/participants/{{participantId}}
+Authorization: Bearer {{accessToken}}
+
+### List participants (admin/agent)
+# Filters: code / userId / wristbandCode / packageId / status / gender / shirtSize.
+# Rows now carry basic package info (id, name, price, benefits).
+GET {{baseUrl}}/participants?status=active
+Authorization: Bearer {{accessToken}}
+
+### List participants by gender
+GET {{baseUrl}}/participants?gender=female
+Authorization: Bearer {{accessToken}}
+
+### List participants by shirt size (case-insensitive — 'l' matches 'L')
+GET {{baseUrl}}/participants?shirtSize=L
+Authorization: Bearer {{accessToken}}
+
+### Filters combine
+GET {{baseUrl}}/participants?gender=male&shirtSize=XL&status=active
+Authorization: Bearer {{accessToken}}
+
+### Export participants to Excel (admin/agent) — same filters as the list above
+# Returns an .xlsx attachment, not JSON. Omit all filters to export everyone.
+GET {{baseUrl}}/participants/export?gender=female&shirtSize=L
+Authorization: Bearer {{accessToken}}
+
+### List participants by participant code
+GET {{baseUrl}}/participants?code=REPLACE_WITH_PARTICIPANT_CODE
+Authorization: Bearer {{accessToken}}
+
+### List participants by wristband code
+GET {{baseUrl}}/participants?wristbandCode=REPLACE_WITH_WRISTBAND_CODE
+Authorization: Bearer {{accessToken}}
+
+### Get a participant
+GET {{baseUrl}}/participants/{{participantId}}
+Authorization: Bearer {{accessToken}}

@@ -1,0 +1,23 @@
+### Participant stats (admin) — status counts + gender and shirt size distribution
+# shirtSizeDistribution keys are the sizes actually recorded (upper-cased);
+# participants with no size are counted under `unspecified`.
+GET {{baseUrl}}/reports/stats?type=participant_stats
+Authorization: Bearer {{accessToken}}
+
+### User stats (admin)
+GET {{baseUrl}}/reports/stats?type=user_stats
+Authorization: Bearer {{accessToken}}
+
+### Wristband stats (admin) — by status, plus how many are linked to a participant
+GET {{baseUrl}}/reports/stats?type=wristband_stats
+Authorization: Bearer {{accessToken}}
+
+### Financial stats (admin) — revenue + payment counts by status
+# Waived settlements (100% coupon) are completed payments of 0: they raise
+# completedPayments without moving revenue.
+GET {{baseUrl}}/reports/stats?type=financial_stats
+Authorization: Bearer {{accessToken}}
+
+### Per-package report (admin) — participants and revenue per package
+GET {{baseUrl}}/reports?reportType=package_performance
+Authorization: Bearer {{accessToken}}

@@ -1,0 +1,46 @@
+### Create package with inline prizes + merchandise (admin)
+# price/amount are in PESEWAS (15000 = GHS 150.00)
+# @name createPackage
+POST {{baseUrl}}/packages
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Elite Runner",
+  "price": 15000,
+  "benefits": "Medal + finisher tee + hydration pack",
+  "merchandiseIds": [],
+  "prizes": [
+    { "name": "1st Place", "position": 1, "amount": 500000, "description": "Cash prize" },
+    { "name": "2nd Place", "position": 2, "amount": 300000 }
+  ]
+}
+
+@packageId = {{createPackage.response.body.data.id}}
+
+### List packages (public)
+GET {{baseUrl}}/packages
+
+### Get package
+GET {{baseUrl}}/packages/{{packageId}}
+
+### Update package — upsert prizes (id => update, no id => create), replace merchandise (admin)
+PUT {{baseUrl}}/packages/{{packageId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "price": 18000,
+  "merchandiseIds": ["{{merchandiseId}}"],
+  "prizes": [
+    { "name": "3rd Place", "position": 3, "amount": 150000 }
+  ]
+}
+
+### Delete a prize (nested under package) (admin)
+DELETE {{baseUrl}}/packages/{{packageId}}/prizes/REPLACE_WITH_PRIZE_ID
+Authorization: Bearer {{accessToken}}
+
+### Delete package (admin)
+DELETE {{baseUrl}}/packages/{{packageId}}
+Authorization: Bearer {{accessToken}}

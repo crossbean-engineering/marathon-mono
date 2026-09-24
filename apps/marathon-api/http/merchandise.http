@@ -1,0 +1,31 @@
+### Create merchandise (admin)
+# @name createMerchandise
+POST {{baseUrl}}/merchandise
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Finisher T-Shirt",
+  "description": "Dri-fit finisher tee"
+}
+
+@merchandiseId = {{createMerchandise.response.body.data.id}}
+
+### List merchandise (public)
+GET {{baseUrl}}/merchandise
+
+### Get merchandise
+GET {{baseUrl}}/merchandise/{{merchandiseId}}
+
+### Update merchandise (admin)
+PUT {{baseUrl}}/merchandise/{{merchandiseId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "description": "Premium dri-fit finisher tee"
+}
+
+### Delete merchandise (admin)
+DELETE {{baseUrl}}/merchandise/{{merchandiseId}}
+Authorization: Bearer {{accessToken}}

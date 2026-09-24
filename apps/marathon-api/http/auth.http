@@ -1,0 +1,39 @@
+### 1. Send OTP first (phone is the identifier)
+# @name sendOtp
+POST {{baseUrl}}/otp/send
+Content-Type: application/json
+
+{
+  "identifier": "233200000001",
+  "provider": "sms"
+}
+
+### 2. Sign up (needs otp + otpSessionId from the send-OTP step)
+# @name signup
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "firstName": "Ama",
+  "lastName": "Mensah",
+  "phone": "233200000001",
+  "email": "ama@example.com",
+  "idNumber": "GHA-123456789",
+  "location": "Accra",
+  "otp": "000000",
+  "otpSessionId": "{{sendOtp.response.body.data.sessionId}}"
+}
+
+### Access token from signup:
+@accessToken = {{signup.response.body.data.accessToken}}
+
+### 3. Login (OTP-based) — send OTP again, then:
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "phone": "233200000001",
+  "otp": "000000",
+  "otpSessionId": "{{sendOtp.response.body.data.sessionId}}"
+}

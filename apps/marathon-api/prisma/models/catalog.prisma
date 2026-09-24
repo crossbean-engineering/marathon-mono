@@ -1,0 +1,58 @@
+model Merchandise {
+  id          String   @id @default(dbgenerated("uuid_generate_v1()")) @db.Uuid
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  packages    Package[]
+  collections ParticipantMerchandise[]
+
+  @@map("merchandise")
+}
+
+model Package {
+  id        String   @id @default(dbgenerated("uuid_generate_v1()")) @db.Uuid
+  name      String   @unique
+  price     Int // pesewas
+  benefits  String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  merchandise  Merchandise[]
+  prizes       Prize[]
+  participants Participant[]
+  coupons      Coupon[]
+
+  @@map("packages")
+}
+
+model Coupon {
+  id         String   @id @default(dbgenerated("uuid_generate_v1()")) @db.Uuid
+  code       String   @unique
+  percentOff Int      @map("percent_off") // 1–100 (100 = free)
+  isActive   Boolean  @default(true) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  packages Package[] // the package(s) this coupon applies to (>= 1)
+  payments Payment[] // redemptions, for reporting
+
+  @@map("coupons")
+}
+
+model Prize {
+  id          String   @id @default(dbgenerated("uuid_generate_v1()")) @db.Uuid
+  name        String
+  amount      Int? // pesewas
+  position    Int?
+  description String?
+  packageId   String   @map("package_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  package Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
+
+  @@index([packageId])
+  @@map("prizes")
+}

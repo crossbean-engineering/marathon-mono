@@ -1,0 +1,8 @@
+{
+  "name": "@marathon/core",
+  "version": "0.0.1",
+  "dependencies": {},
+  "typings": "./index.esm.d.ts",
+  "main": "./index.esm.js",
+  "module": "./index.esm.js"
+}

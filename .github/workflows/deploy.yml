@@ -1,0 +1,151 @@
+name: Deploy
+
+# Deploy on push (or manual run), one branch per environment:
+#   staging -> :staging tag    -> PORTAINER_WEBHOOK_STAGING
+#   main    -> :production tag -> PORTAINER_WEBHOOK_PROD
+#
+# No test job here: tests run on the pull request that landed the push, and
+# branch protection is what keeps that true. The Dockerfiles copy a prebuilt
+# dist/, so the apps are compiled here first, then each image is pushed to
+# GHCR with an immutable SHA tag plus the environment's moving tag, and the
+# Portainer webhook re-pulls the tags and redeploys the stack. Migrations run
+# inside the API container at boot (see apps/marathon-api/Dockerfile CMD).
+
+on:
+  push:
+    branches: [staging, main]
+  workflow_dispatch:
+
+# Per environment, not global: a staging deploy must never queue behind
+# production, but two pushes to one branch still coalesce.
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+  NODE_VERSION: 22
+  # The one branch->environment decision, made once and read everywhere below.
+  ENVIRONMENT: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+  # Read by libs/config at build time to pick the frontend's API URI.
+  VITE_STAGE: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+  VITE_CJS_IGNORE_WARNING: 'true'
+  # Through env because `if:` cannot read secrets — empty when the secret is unset.
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+jobs:
+  build-deploy:
+    name: Build → GHCR → deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # push to GHCR
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Collect commit metadata
+        id: meta
+        run: |
+          set -euo pipefail
+          echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "commit_msg=$(git log -1 --pretty=%s)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable Yarn
+        run: corepack enable
+
+      - name: Install
+        run: yarn install --immutable
+
+      # The Prisma client is committed (provider "prisma-client" + adapter-pg is
+      # platform-independent), so it is not regenerated here.
+      - name: Build API and frontend
+        run: yarn nx run-many -t build -p marathon-api marathon --skip-nx-cache
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push images
+        run: |
+          set -euo pipefail
+          # GHCR requires a lowercase image path
+          OWNER="${GITHUB_REPOSITORY_OWNER,,}"
+          SHA="${GITHUB_SHA::7}"
+          build_push() { # <image-name> <dockerfile>
+            local image="$REGISTRY/$OWNER/$1"
+            docker build -f "$2" --build-arg COMMIT_SHA="$SHA" \
+              -t "$image:$SHA" -t "$image:$ENVIRONMENT" .
+            docker push "$image:$SHA"
+            docker push "$image:$ENVIRONMENT"
+          }
+          build_push marathon-api apps/marathon-api/Dockerfile
+          build_push marathon-web apps/marathon/Dockerfile
+
+      - name: Trigger Portainer redeploy
+        run: |
+          set -euo pipefail
+          if [ -z "${PORTAINER_WEBHOOK:-}" ]; then
+            echo "::error::Portainer webhook secret for $ENVIRONMENT is not set"
+            exit 1
+          fi
+          # Brief delay so GHCR finishes serving the freshly-pushed tags before
+          # Portainer re-pulls them.
+          sleep 10
+          # Portainer re-pulls the environment tag and recreates the stack. 204 = success.
+          status=$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$PORTAINER_WEBHOOK")
+          echo "Portainer webhook responded: $status"
+          if [ "$status" != "204" ] && [ "$status" != "200" ]; then
+            echo "::error::Portainer webhook failed with status $status"
+            exit 1
+          fi
+        env:
+          PORTAINER_WEBHOOK: ${{ github.ref_name == 'main' && secrets.PORTAINER_WEBHOOK_PROD || secrets.PORTAINER_WEBHOOK_STAGING }}
+
+      - name: Notify Slack
+        if: always() && env.SLACK_WEBHOOK_URL != ''
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            attachments:
+              - color: "${{ job.status == 'success' && '#2eb67d' || '#e01e5a' }}"
+                blocks:
+                  - type: header
+                    text:
+                      type: plain_text
+                      text: "${{ job.status == 'success' && '✅ Deploy succeeded' || '❌ Deploy failed' }}"
+                      emoji: true
+                  - type: section
+                    fields:
+                      - type: mrkdwn
+                        text: "*Project*\n${{ github.event.repository.name }}"
+                      - type: mrkdwn
+                        text: "*Environment*\n${{ env.ENVIRONMENT }}"
+                      - type: mrkdwn
+                        text: "*Branch*\n`${{ github.ref_name }}`"
+                      - type: mrkdwn
+                        text: "*Commit*\n`${{ steps.meta.outputs.short_sha }}`"
+                      - type: mrkdwn
+                        text: "*Author*\n${{ github.actor }}"
+                  - type: section
+                    text:
+                      type: mrkdwn
+                      text: "_${{ steps.meta.outputs.commit_msg }}_"
+                  - type: actions
+                    elements:
+                      - type: button
+                        text:
+                          type: plain_text
+                          text: "View run"
+                        url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

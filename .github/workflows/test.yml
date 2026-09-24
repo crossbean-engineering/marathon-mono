@@ -1,0 +1,40 @@
+name: Test
+
+# Build and unit tests on pull requests aimed at staging or main. Deploys
+# trust this gate, and branch protection is what makes it mandatory.
+#
+# Not run yet, because the copied code does not pass them: lint (6 errors),
+# `marathon:typecheck` (updateAdminUser missing from the spec) and
+# `marathon:test` (the Nx scaffold test). marathon-spec hits a live API.
+
+on:
+  pull_request:
+    branches: [staging, main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable Yarn
+        run: corepack enable
+
+      - name: Install
+        run: yarn install --immutable
+
+      - name: Build
+        run: yarn nx run-many -t build -p marathon-api marathon --skip-nx-cache
+
+      - name: Unit tests
+        run: >-
+          yarn nx run-many -t test --exclude marathon marathon-spec
+          --skip-nx-cache --passWithNoTests

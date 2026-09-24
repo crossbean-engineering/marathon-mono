@@ -1,0 +1,1 @@
+export { useRenderPrice } from './useRenderPrice';

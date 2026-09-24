@@ -1,0 +1,193 @@
+### MojoPay Omni integration — manual request book
+### Requires VS Code REST Client extension (humao.rest-client).
+### Fill in the variables below, then run each request with "Send Request".
+
+@baseUrl = https://omni.mojo-pay.com/v1
+@clientId = your-client-id
+@clientSecret = your-client-secret
+
+# After running "Get token" below, paste the returned access_token here.
+@token = PASTE_ACCESS_TOKEN_HERE
+
+@mobile = 233XXXXXXXXX
+@provider = MTN
+@merchantRef = TEST-{{$timestamp}}
+
+
+### ============================================================
+### 1. Auth
+### ============================================================
+
+### Get token
+# @name getToken
+POST {{baseUrl}}/oauth/token
+Content-Type: application/json
+
+{
+  "client_id": "{{clientId}}",
+  "client_secret": "{{clientSecret}}"
+}
+
+
+### ============================================================
+### 2. Collections
+### ============================================================
+
+### Create collection (fixed amount, small test value)
+# @name createCollection
+POST {{baseUrl}}/collections
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Idempotency-Key: {{$guid}}
+
+{
+  "currency": "GHS",
+  "amount": "0.50",
+  "merchant_reference": "{{merchantRef}}",
+  "description": "Omni smoke test",
+  "mobile": "{{mobile}}",
+  "provider": "{{provider}}"
+}
+
+### Get collection by id (replace CL_... with id from createCollection response)
+GET {{baseUrl}}/collections/CL_REPLACE_ME
+Authorization: Bearer {{token}}
+
+
+### ============================================================
+### 3. Hosted checkout
+### ============================================================
+
+### Create checkout session — fixed amount
+# @name createCheckout
+POST {{baseUrl}}/checkout/sessions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Idempotency-Key: {{$guid}}
+
+{
+  "amount_mode": "fixed",
+  "currency": "GHS",
+  "amount": "0.50",
+  "merchant_reference": "{{merchantRef}}",
+  "description": "Omni checkout smoke test",
+  "success_url": "https://example.com/paid",
+  "cancel_url": "https://example.com/cancelled"
+}
+
+### Create checkout session — open amount (rejected while in Testing mode)
+POST {{baseUrl}}/checkout/sessions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Idempotency-Key: {{$guid}}
+
+{
+  "amount_mode": "open",
+  "currency": "GHS",
+  "merchant_reference": "{{merchantRef}}",
+  "description": "Open amount session",
+  "success_url": "https://example.com/paid",
+  "cancel_url": "https://example.com/cancelled"
+}
+
+
+### ============================================================
+### 4. Verify by merchant reference
+### ============================================================
+
+### Unified verify — replace TEST-... with a real merchant_reference
+GET {{baseUrl}}/transactions/verify/TEST-REPLACE_ME
+Authorization: Bearer {{token}}
+
+
+### ============================================================
+### 5. Payouts
+### ============================================================
+
+### Mobile money payout
+POST {{baseUrl}}/payouts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Idempotency-Key: {{$guid}}
+
+{
+  "type": "mobile_money",
+  "currency": "GHS",
+  "amount": "0.50",
+  "merchant_reference": "{{merchantRef}}",
+  "mobile": "{{mobile}}",
+  "provider": "{{provider}}",
+  "narration": "Omni payout smoke test"
+}
+
+### Get payout status
+GET {{baseUrl}}/payouts/TEST-REPLACE_ME
+Authorization: Bearer {{token}}
+
+
+### ============================================================
+### 6. Verifications
+### ============================================================
+
+### Verify mobile (MSISDN)
+POST {{baseUrl}}/verifications/msisdn
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "mobile": "{{mobile}}",
+  "provider": "{{provider}}"
+}
+
+### Verify bank account
+POST {{baseUrl}}/verifications/bank_accounts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bank_code": "300304",
+  "account_number": "REPLACE_ACCOUNT_NUMBER"
+}
+
+
+### ============================================================
+### 7. Metadata & balance
+### ============================================================
+
+### Mobile providers (use these codes for provider field — never hardcode)
+GET {{baseUrl}}/metadata/mobile_providers
+Authorization: Bearer {{token}}
+
+### Banks
+GET {{baseUrl}}/metadata/banks
+Authorization: Bearer {{token}}
+
+### Balance
+GET {{baseUrl}}/balance
+Authorization: Bearer {{token}}
+
+
+### ============================================================
+### 8. Account context
+### ============================================================
+
+### Confirm which account the token resolves to
+GET {{baseUrl}}/account
+Authorization: Bearer {{token}}
+
+
+### ============================================================
+### 9. Webhook — simulate a MojoPay delivery (run in terminal)
+### ============================================================
+# Replace WEBHOOK_URL with your webhook.site URL (https://webhook.site)
+# Replace WEBHOOK_SECRET with the secret from the portal.
+#
+# WEBHOOK_URL="https://webhook.site/your-uuid"
+# WEBHOOK_SECRET="whsec_from_portal"
+# TIMESTAMP=$(date +%s)
+# BODY='{"id":"EVT_TEST001ABCDEFGHIJKLMNOPQR","type":"collection.succeeded","api_version":"2026-04-15","created":"2026-04-15T10:05:00Z","data":{"object":{"id":"CL_TEST","object":"collection","status":"succeeded","currency":"GHS","amount":"0.50","merchant_reference":"TEST-001","payment_rail":"mobile_money","provider":"MTN"}}}'
+# SIG=$(printf '%s' "${TIMESTAMP}.${BODY}" | openssl dgst -sha256 -hmac "${WEBHOOK_SECRET}" | awk '{print $NF}')
+# curl -sS -X POST "${WEBHOOK_URL}" \
+#   -H "Content-Type: application/json" \
+#   -H "MojoPay-Signature: t=${TIMESTAMP},v1=${SIG}" \
+#   -d "${BODY}"

@@ -1,0 +1,59 @@
+enum Gender {
+  male
+  female
+}
+
+enum ParticipantStatus {
+  pending
+  active
+  suspended
+}
+
+model Participant {
+  id        String            @id @default(dbgenerated("uuid_generate_v1()")) @db.Uuid
+  ic        String?
+  name      String            @unique
+  code      String            @unique
+  shirtSize String?           @map("shirt_size")
+  gender    Gender?
+  status    ParticipantStatus @default(pending)
+  // Race number handed out at check-in, and when the check-in happened. Both
+  // null until the participant checks in.
+  runnerNumber String?        @unique @map("runner_number")
+  checkinDate  DateTime?      @map("checkin_date")
+  userId    String            @map("user_id") @db.Uuid
+  packageId String            @map("package_id") @db.Uuid
+  paymentId String?           @unique @map("payment_id") @db.Uuid
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @updatedAt @map("updated_at")
+
+  user      User       @relation(fields: [userId], references: [id])
+  package   Package    @relation(fields: [packageId], references: [id])
+  payment   Payment?   @relation(fields: [paymentId], references: [id])
+  wristband Wristband?
+
+  collectedMerchandise ParticipantMerchandise[]
+
+  @@index([userId])
+  @@index([packageId])
+  @@index([code])
+  @@map("participants")
+}
+
+// One row per merchandise item a participant has actually collected. An
+// explicit join model rather than an implicit m2m so the collection time is
+// recorded, and so re-sending an already-collected item leaves it untouched.
+model ParticipantMerchandise {
+  id            String   @id @default(dbgenerated("uuid_generate_v1()")) @db.Uuid
+  participantId String   @map("participant_id") @db.Uuid
+  merchandiseId String   @map("merchandise_id") @db.Uuid
+  collectedAt   DateTime @default(now()) @map("collected_at")
+
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  merchandise Merchandise @relation(fields: [merchandiseId], references: [id], onDelete: Cascade)
+
+  @@unique([participantId, merchandiseId])
+  @@index([participantId])
+  @@index([merchandiseId])
+  @@map("participant_merchandise")
+}

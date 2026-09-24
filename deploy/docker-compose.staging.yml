@@ -1,0 +1,64 @@
+services:
+  marathon-web:
+    image: ghcr.io/crossbean-engineering/marathon-web:staging
+    container_name: marathon-web
+    restart: always
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.marathon-web.rule=Host(`marathon.wenovis.com`)'
+      - 'traefik.http.routers.marathon-web.priority=10'
+      - 'traefik.http.routers.marathon-web.entrypoints=websecure'
+      - 'traefik.http.routers.marathon-web.tls.certresolver=production'
+      - 'traefik.http.services.marathon-web.loadbalancer.server.port=80'
+    networks:
+      - traefik_default
+
+  marathon-api:
+    image: ghcr.io/crossbean-engineering/marathon-api:staging
+    container_name: marathon-api
+    restart: always
+    environment:
+      NODE_ENV: 'production'
+      STAGE: 'staging'
+      PORT: '8085'
+      APP_VERSION: ${MARATHON_APP_VERSION:-0.0.1}
+      WEB_APP_URL: ${MARATHON_WEB_APP_URL:-https://marathon.wenovis.com}
+      MARATHON_DATABASE_URL: ${MARATHON_DATABASE_URL}
+      MARATHON_SUPER_ADMIN_PHONE: ${MARATHON_SUPER_ADMIN_PHONE}
+      ADMIN_SECRET_KEY: ${ADMIN_SECRET_KEY}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      PAYMENT_ENV: ${MARATHON_PAYMENT_ENV:-prod}
+      PAYMENT_STALE_THRESHOLD_HOURS: ${MARATHON_PAYMENT_STALE_THRESHOLD_HOURS:-24}
+      PAYMENT_TRUST_ID: ${MARATHON_PAYMENT_TRUST_ID}
+      MOJO_APP_ID: ${MARATHON_MOJO_APP_ID}
+      MOJO_APP_KEY: ${MARATHON_MOJO_APP_KEY}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_DB: ${REDIS_DB:-0}
+      HUBTEL_CLIENT_ID: ${HUBTEL_CLIENT_ID:-}
+      HUBTEL_CLIENT_SECRET: ${HUBTEL_CLIENT_SECRET:-}
+      HUBTEL_FROM: ${HUBTEL_FROM:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=traefik_default'
+      - 'traefik.http.routers.marathon-api.rule=Host(`marathon-api.wenovis.com`)'
+      - 'traefik.http.routers.marathon-api.priority=10'
+      - 'traefik.http.routers.marathon-api.entrypoints=websecure'
+      - 'traefik.http.routers.marathon-api.tls.certresolver=production'
+      - 'traefik.http.services.marathon-api.loadbalancer.server.port=8085'
+    networks:
+      - woober-backend_internal
+      - traefik_default
+
+networks:
+  woober-backend_internal:
+    external: true
+  traefik_default:
+    external: true

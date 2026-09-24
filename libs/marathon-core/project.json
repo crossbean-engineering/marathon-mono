@@ -1,0 +1,67 @@
+{
+  "name": "marathon-core",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/marathon-core/src",
+  "projectType": "library",
+  "release": {
+    "version": {
+      "currentVersionResolver": "git-tag",
+      "preserveLocalDependencyProtocols": false,
+      "manifestRootsToUpdate": ["{projectRoot}/dist"]
+    }
+  },
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/rollup:rollup",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "main": "libs/marathon-core/src/index.ts",
+        "outputPath": "libs/marathon-core/dist",
+        "tsConfig": "libs/marathon-core/tsconfig.lib.json",
+        "compiler": "swc",
+        "format": ["cjs", "esm"],
+        "generatePackageJson": false,
+        "external": ["@rabstack/rab-query", "@rabstack/rab-api-spec"],
+        "assets": [
+          {
+            "input": "libs/marathon-core",
+            "glob": "README.md",
+            "output": "."
+          },
+          {
+            "input": "libs/marathon-core",
+            "glob": ".npmrc",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "bundle-ts": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "api-extractor run --local --verbose",
+        "cwd": "libs/marathon-core"
+      }
+    },
+    "package": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["bundle-ts"],
+      "options": {
+        "commands": [
+          "mkdir -p core-dist",
+          "cp dist/index.esm.js core-dist/index.js",
+          "cp dist/index.esm.d.ts core-dist/index.d.ts"
+        ],
+        "cwd": "libs/marathon-core",
+        "parallel": false
+      }
+    },
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "{projectRoot}/dist"
+      }
+    }
+  }
+}

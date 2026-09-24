@@ -1,0 +1,21 @@
+enum WristbandStatus {
+  available
+  redeemed
+  disabled
+}
+
+model Wristband {
+  id            String          @id @default(dbgenerated("uuid_generate_v1()")) @db.Uuid
+  code          String          @unique
+  status        WristbandStatus @default(available)
+  isPrinted     Boolean         @default(false) @map("is_printed")
+  participantId String?         @unique @map("participant_id") @db.Uuid
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+
+  participant Participant? @relation(fields: [participantId], references: [id])
+
+  @@index([code])
+  @@index([status])
+  @@map("wristbands")
+}
