@@ -259,6 +259,7 @@ export type ParticipantWhereInput = {
   payment?: Prisma.XOR<Prisma.PaymentNullableScalarRelationFilter, Prisma.PaymentWhereInput> | null
   wristband?: Prisma.XOR<Prisma.WristbandNullableScalarRelationFilter, Prisma.WristbandWhereInput> | null
   collectedMerchandise?: Prisma.ParticipantMerchandiseListRelationFilter
+  addOns?: Prisma.ParticipantAddOnListRelationFilter
 }
 
 export type ParticipantOrderByWithRelationInput = {
@@ -281,6 +282,7 @@ export type ParticipantOrderByWithRelationInput = {
   payment?: Prisma.PaymentOrderByWithRelationInput
   wristband?: Prisma.WristbandOrderByWithRelationInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseOrderByRelationAggregateInput
+  addOns?: Prisma.ParticipantAddOnOrderByRelationAggregateInput
 }
 
 export type ParticipantWhereUniqueInput = Prisma.AtLeast<{
@@ -306,6 +308,7 @@ export type ParticipantWhereUniqueInput = Prisma.AtLeast<{
   payment?: Prisma.XOR<Prisma.PaymentNullableScalarRelationFilter, Prisma.PaymentWhereInput> | null
   wristband?: Prisma.XOR<Prisma.WristbandNullableScalarRelationFilter, Prisma.WristbandWhereInput> | null
   collectedMerchandise?: Prisma.ParticipantMerchandiseListRelationFilter
+  addOns?: Prisma.ParticipantAddOnListRelationFilter
 }, "id" | "name" | "code" | "runnerNumber" | "paymentId">
 
 export type ParticipantOrderByWithAggregationInput = {
@@ -365,6 +368,7 @@ export type ParticipantCreateInput = {
   payment?: Prisma.PaymentCreateNestedOneWithoutParticipantInput
   wristband?: Prisma.WristbandCreateNestedOneWithoutParticipantInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseCreateNestedManyWithoutParticipantInput
+  addOns?: Prisma.ParticipantAddOnCreateNestedManyWithoutParticipantInput
 }
 
 export type ParticipantUncheckedCreateInput = {
@@ -384,6 +388,7 @@ export type ParticipantUncheckedCreateInput = {
   updatedAt?: Date | string
   wristband?: Prisma.WristbandUncheckedCreateNestedOneWithoutParticipantInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseUncheckedCreateNestedManyWithoutParticipantInput
+  addOns?: Prisma.ParticipantAddOnUncheckedCreateNestedManyWithoutParticipantInput
 }
 
 export type ParticipantUpdateInput = {
@@ -403,6 +408,7 @@ export type ParticipantUpdateInput = {
   payment?: Prisma.PaymentUpdateOneWithoutParticipantNestedInput
   wristband?: Prisma.WristbandUpdateOneWithoutParticipantNestedInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseUpdateManyWithoutParticipantNestedInput
+  addOns?: Prisma.ParticipantAddOnUpdateManyWithoutParticipantNestedInput
 }
 
 export type ParticipantUncheckedUpdateInput = {
@@ -422,6 +428,7 @@ export type ParticipantUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   wristband?: Prisma.WristbandUncheckedUpdateOneWithoutParticipantNestedInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseUncheckedUpdateManyWithoutParticipantNestedInput
+  addOns?: Prisma.ParticipantAddOnUncheckedUpdateManyWithoutParticipantNestedInput
 }
 
 export type ParticipantCreateManyInput = {
@@ -611,6 +618,20 @@ export type ParticipantUpdateOneRequiredWithoutCollectedMerchandiseNestedInput =
   update?: Prisma.XOR<Prisma.XOR<Prisma.ParticipantUpdateToOneWithWhereWithoutCollectedMerchandiseInput, Prisma.ParticipantUpdateWithoutCollectedMerchandiseInput>, Prisma.ParticipantUncheckedUpdateWithoutCollectedMerchandiseInput>
 }
 
+export type ParticipantCreateNestedOneWithoutAddOnsInput = {
+  create?: Prisma.XOR<Prisma.ParticipantCreateWithoutAddOnsInput, Prisma.ParticipantUncheckedCreateWithoutAddOnsInput>
+  connectOrCreate?: Prisma.ParticipantCreateOrConnectWithoutAddOnsInput
+  connect?: Prisma.ParticipantWhereUniqueInput
+}
+
+export type ParticipantUpdateOneRequiredWithoutAddOnsNestedInput = {
+  create?: Prisma.XOR<Prisma.ParticipantCreateWithoutAddOnsInput, Prisma.ParticipantUncheckedCreateWithoutAddOnsInput>
+  connectOrCreate?: Prisma.ParticipantCreateOrConnectWithoutAddOnsInput
+  upsert?: Prisma.ParticipantUpsertWithoutAddOnsInput
+  connect?: Prisma.ParticipantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ParticipantUpdateToOneWithWhereWithoutAddOnsInput, Prisma.ParticipantUpdateWithoutAddOnsInput>, Prisma.ParticipantUncheckedUpdateWithoutAddOnsInput>
+}
+
 export type ParticipantCreateNestedOneWithoutPaymentInput = {
   create?: Prisma.XOR<Prisma.ParticipantCreateWithoutPaymentInput, Prisma.ParticipantUncheckedCreateWithoutPaymentInput>
   connectOrCreate?: Prisma.ParticipantCreateOrConnectWithoutPaymentInput
@@ -717,6 +738,7 @@ export type ParticipantCreateWithoutPackageInput = {
   payment?: Prisma.PaymentCreateNestedOneWithoutParticipantInput
   wristband?: Prisma.WristbandCreateNestedOneWithoutParticipantInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseCreateNestedManyWithoutParticipantInput
+  addOns?: Prisma.ParticipantAddOnCreateNestedManyWithoutParticipantInput
 }
 
 export type ParticipantUncheckedCreateWithoutPackageInput = {
@@ -735,6 +757,7 @@ export type ParticipantUncheckedCreateWithoutPackageInput = {
   updatedAt?: Date | string
   wristband?: Prisma.WristbandUncheckedCreateNestedOneWithoutParticipantInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseUncheckedCreateNestedManyWithoutParticipantInput
+  addOns?: Prisma.ParticipantAddOnUncheckedCreateNestedManyWithoutParticipantInput
 }
 
 export type ParticipantCreateOrConnectWithoutPackageInput = {
@@ -799,6 +822,7 @@ export type ParticipantCreateWithoutCollectedMerchandiseInput = {
   package: Prisma.PackageCreateNestedOneWithoutParticipantsInput
   payment?: Prisma.PaymentCreateNestedOneWithoutParticipantInput
   wristband?: Prisma.WristbandCreateNestedOneWithoutParticipantInput
+  addOns?: Prisma.ParticipantAddOnCreateNestedManyWithoutParticipantInput
 }
 
 export type ParticipantUncheckedCreateWithoutCollectedMerchandiseInput = {
@@ -817,6 +841,7 @@ export type ParticipantUncheckedCreateWithoutCollectedMerchandiseInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   wristband?: Prisma.WristbandUncheckedCreateNestedOneWithoutParticipantInput
+  addOns?: Prisma.ParticipantAddOnUncheckedCreateNestedManyWithoutParticipantInput
 }
 
 export type ParticipantCreateOrConnectWithoutCollectedMerchandiseInput = {
@@ -851,6 +876,7 @@ export type ParticipantUpdateWithoutCollectedMerchandiseInput = {
   package?: Prisma.PackageUpdateOneRequiredWithoutParticipantsNestedInput
   payment?: Prisma.PaymentUpdateOneWithoutParticipantNestedInput
   wristband?: Prisma.WristbandUpdateOneWithoutParticipantNestedInput
+  addOns?: Prisma.ParticipantAddOnUpdateManyWithoutParticipantNestedInput
 }
 
 export type ParticipantUncheckedUpdateWithoutCollectedMerchandiseInput = {
@@ -869,6 +895,99 @@ export type ParticipantUncheckedUpdateWithoutCollectedMerchandiseInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   wristband?: Prisma.WristbandUncheckedUpdateOneWithoutParticipantNestedInput
+  addOns?: Prisma.ParticipantAddOnUncheckedUpdateManyWithoutParticipantNestedInput
+}
+
+export type ParticipantCreateWithoutAddOnsInput = {
+  id?: string
+  ic?: string | null
+  name: string
+  code: string
+  shirtSize?: string | null
+  gender?: $Enums.Gender | null
+  status?: $Enums.ParticipantStatus
+  runnerNumber?: string | null
+  checkinDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutParticipantsInput
+  package: Prisma.PackageCreateNestedOneWithoutParticipantsInput
+  payment?: Prisma.PaymentCreateNestedOneWithoutParticipantInput
+  wristband?: Prisma.WristbandCreateNestedOneWithoutParticipantInput
+  collectedMerchandise?: Prisma.ParticipantMerchandiseCreateNestedManyWithoutParticipantInput
+}
+
+export type ParticipantUncheckedCreateWithoutAddOnsInput = {
+  id?: string
+  ic?: string | null
+  name: string
+  code: string
+  shirtSize?: string | null
+  gender?: $Enums.Gender | null
+  status?: $Enums.ParticipantStatus
+  runnerNumber?: string | null
+  checkinDate?: Date | string | null
+  userId: string
+  packageId: string
+  paymentId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  wristband?: Prisma.WristbandUncheckedCreateNestedOneWithoutParticipantInput
+  collectedMerchandise?: Prisma.ParticipantMerchandiseUncheckedCreateNestedManyWithoutParticipantInput
+}
+
+export type ParticipantCreateOrConnectWithoutAddOnsInput = {
+  where: Prisma.ParticipantWhereUniqueInput
+  create: Prisma.XOR<Prisma.ParticipantCreateWithoutAddOnsInput, Prisma.ParticipantUncheckedCreateWithoutAddOnsInput>
+}
+
+export type ParticipantUpsertWithoutAddOnsInput = {
+  update: Prisma.XOR<Prisma.ParticipantUpdateWithoutAddOnsInput, Prisma.ParticipantUncheckedUpdateWithoutAddOnsInput>
+  create: Prisma.XOR<Prisma.ParticipantCreateWithoutAddOnsInput, Prisma.ParticipantUncheckedCreateWithoutAddOnsInput>
+  where?: Prisma.ParticipantWhereInput
+}
+
+export type ParticipantUpdateToOneWithWhereWithoutAddOnsInput = {
+  where?: Prisma.ParticipantWhereInput
+  data: Prisma.XOR<Prisma.ParticipantUpdateWithoutAddOnsInput, Prisma.ParticipantUncheckedUpdateWithoutAddOnsInput>
+}
+
+export type ParticipantUpdateWithoutAddOnsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  shirtSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  status?: Prisma.EnumParticipantStatusFieldUpdateOperationsInput | $Enums.ParticipantStatus
+  runnerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkinDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutParticipantsNestedInput
+  package?: Prisma.PackageUpdateOneRequiredWithoutParticipantsNestedInput
+  payment?: Prisma.PaymentUpdateOneWithoutParticipantNestedInput
+  wristband?: Prisma.WristbandUpdateOneWithoutParticipantNestedInput
+  collectedMerchandise?: Prisma.ParticipantMerchandiseUpdateManyWithoutParticipantNestedInput
+}
+
+export type ParticipantUncheckedUpdateWithoutAddOnsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  ic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  shirtSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  status?: Prisma.EnumParticipantStatusFieldUpdateOperationsInput | $Enums.ParticipantStatus
+  runnerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checkinDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  packageId?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  wristband?: Prisma.WristbandUncheckedUpdateOneWithoutParticipantNestedInput
+  collectedMerchandise?: Prisma.ParticipantMerchandiseUncheckedUpdateManyWithoutParticipantNestedInput
 }
 
 export type ParticipantCreateWithoutPaymentInput = {
@@ -887,6 +1006,7 @@ export type ParticipantCreateWithoutPaymentInput = {
   package: Prisma.PackageCreateNestedOneWithoutParticipantsInput
   wristband?: Prisma.WristbandCreateNestedOneWithoutParticipantInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseCreateNestedManyWithoutParticipantInput
+  addOns?: Prisma.ParticipantAddOnCreateNestedManyWithoutParticipantInput
 }
 
 export type ParticipantUncheckedCreateWithoutPaymentInput = {
@@ -905,6 +1025,7 @@ export type ParticipantUncheckedCreateWithoutPaymentInput = {
   updatedAt?: Date | string
   wristband?: Prisma.WristbandUncheckedCreateNestedOneWithoutParticipantInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseUncheckedCreateNestedManyWithoutParticipantInput
+  addOns?: Prisma.ParticipantAddOnUncheckedCreateNestedManyWithoutParticipantInput
 }
 
 export type ParticipantCreateOrConnectWithoutPaymentInput = {
@@ -939,6 +1060,7 @@ export type ParticipantUpdateWithoutPaymentInput = {
   package?: Prisma.PackageUpdateOneRequiredWithoutParticipantsNestedInput
   wristband?: Prisma.WristbandUpdateOneWithoutParticipantNestedInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseUpdateManyWithoutParticipantNestedInput
+  addOns?: Prisma.ParticipantAddOnUpdateManyWithoutParticipantNestedInput
 }
 
 export type ParticipantUncheckedUpdateWithoutPaymentInput = {
@@ -957,6 +1079,7 @@ export type ParticipantUncheckedUpdateWithoutPaymentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   wristband?: Prisma.WristbandUncheckedUpdateOneWithoutParticipantNestedInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseUncheckedUpdateManyWithoutParticipantNestedInput
+  addOns?: Prisma.ParticipantAddOnUncheckedUpdateManyWithoutParticipantNestedInput
 }
 
 export type ParticipantCreateWithoutUserInput = {
@@ -975,6 +1098,7 @@ export type ParticipantCreateWithoutUserInput = {
   payment?: Prisma.PaymentCreateNestedOneWithoutParticipantInput
   wristband?: Prisma.WristbandCreateNestedOneWithoutParticipantInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseCreateNestedManyWithoutParticipantInput
+  addOns?: Prisma.ParticipantAddOnCreateNestedManyWithoutParticipantInput
 }
 
 export type ParticipantUncheckedCreateWithoutUserInput = {
@@ -993,6 +1117,7 @@ export type ParticipantUncheckedCreateWithoutUserInput = {
   updatedAt?: Date | string
   wristband?: Prisma.WristbandUncheckedCreateNestedOneWithoutParticipantInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseUncheckedCreateNestedManyWithoutParticipantInput
+  addOns?: Prisma.ParticipantAddOnUncheckedCreateNestedManyWithoutParticipantInput
 }
 
 export type ParticipantCreateOrConnectWithoutUserInput = {
@@ -1037,6 +1162,7 @@ export type ParticipantCreateWithoutWristbandInput = {
   package: Prisma.PackageCreateNestedOneWithoutParticipantsInput
   payment?: Prisma.PaymentCreateNestedOneWithoutParticipantInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseCreateNestedManyWithoutParticipantInput
+  addOns?: Prisma.ParticipantAddOnCreateNestedManyWithoutParticipantInput
 }
 
 export type ParticipantUncheckedCreateWithoutWristbandInput = {
@@ -1055,6 +1181,7 @@ export type ParticipantUncheckedCreateWithoutWristbandInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   collectedMerchandise?: Prisma.ParticipantMerchandiseUncheckedCreateNestedManyWithoutParticipantInput
+  addOns?: Prisma.ParticipantAddOnUncheckedCreateNestedManyWithoutParticipantInput
 }
 
 export type ParticipantCreateOrConnectWithoutWristbandInput = {
@@ -1089,6 +1216,7 @@ export type ParticipantUpdateWithoutWristbandInput = {
   package?: Prisma.PackageUpdateOneRequiredWithoutParticipantsNestedInput
   payment?: Prisma.PaymentUpdateOneWithoutParticipantNestedInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseUpdateManyWithoutParticipantNestedInput
+  addOns?: Prisma.ParticipantAddOnUpdateManyWithoutParticipantNestedInput
 }
 
 export type ParticipantUncheckedUpdateWithoutWristbandInput = {
@@ -1107,6 +1235,7 @@ export type ParticipantUncheckedUpdateWithoutWristbandInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   collectedMerchandise?: Prisma.ParticipantMerchandiseUncheckedUpdateManyWithoutParticipantNestedInput
+  addOns?: Prisma.ParticipantAddOnUncheckedUpdateManyWithoutParticipantNestedInput
 }
 
 export type ParticipantCreateManyPackageInput = {
@@ -1141,6 +1270,7 @@ export type ParticipantUpdateWithoutPackageInput = {
   payment?: Prisma.PaymentUpdateOneWithoutParticipantNestedInput
   wristband?: Prisma.WristbandUpdateOneWithoutParticipantNestedInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseUpdateManyWithoutParticipantNestedInput
+  addOns?: Prisma.ParticipantAddOnUpdateManyWithoutParticipantNestedInput
 }
 
 export type ParticipantUncheckedUpdateWithoutPackageInput = {
@@ -1159,6 +1289,7 @@ export type ParticipantUncheckedUpdateWithoutPackageInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   wristband?: Prisma.WristbandUncheckedUpdateOneWithoutParticipantNestedInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseUncheckedUpdateManyWithoutParticipantNestedInput
+  addOns?: Prisma.ParticipantAddOnUncheckedUpdateManyWithoutParticipantNestedInput
 }
 
 export type ParticipantUncheckedUpdateManyWithoutPackageInput = {
@@ -1209,6 +1340,7 @@ export type ParticipantUpdateWithoutUserInput = {
   payment?: Prisma.PaymentUpdateOneWithoutParticipantNestedInput
   wristband?: Prisma.WristbandUpdateOneWithoutParticipantNestedInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseUpdateManyWithoutParticipantNestedInput
+  addOns?: Prisma.ParticipantAddOnUpdateManyWithoutParticipantNestedInput
 }
 
 export type ParticipantUncheckedUpdateWithoutUserInput = {
@@ -1227,6 +1359,7 @@ export type ParticipantUncheckedUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   wristband?: Prisma.WristbandUncheckedUpdateOneWithoutParticipantNestedInput
   collectedMerchandise?: Prisma.ParticipantMerchandiseUncheckedUpdateManyWithoutParticipantNestedInput
+  addOns?: Prisma.ParticipantAddOnUncheckedUpdateManyWithoutParticipantNestedInput
 }
 
 export type ParticipantUncheckedUpdateManyWithoutUserInput = {
@@ -1252,10 +1385,12 @@ export type ParticipantUncheckedUpdateManyWithoutUserInput = {
 
 export type ParticipantCountOutputType = {
   collectedMerchandise: number
+  addOns: number
 }
 
 export type ParticipantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   collectedMerchandise?: boolean | ParticipantCountOutputTypeCountCollectedMerchandiseArgs
+  addOns?: boolean | ParticipantCountOutputTypeCountAddOnsArgs
 }
 
 /**
@@ -1273,6 +1408,13 @@ export type ParticipantCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.
  */
 export type ParticipantCountOutputTypeCountCollectedMerchandiseArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ParticipantMerchandiseWhereInput
+}
+
+/**
+ * ParticipantCountOutputType without action
+ */
+export type ParticipantCountOutputTypeCountAddOnsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ParticipantAddOnWhereInput
 }
 
 
@@ -1296,6 +1438,7 @@ export type ParticipantSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   payment?: boolean | Prisma.Participant$paymentArgs<ExtArgs>
   wristband?: boolean | Prisma.Participant$wristbandArgs<ExtArgs>
   collectedMerchandise?: boolean | Prisma.Participant$collectedMerchandiseArgs<ExtArgs>
+  addOns?: boolean | Prisma.Participant$addOnsArgs<ExtArgs>
   _count?: boolean | Prisma.ParticipantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["participant"]>
 
@@ -1363,6 +1506,7 @@ export type ParticipantInclude<ExtArgs extends runtime.Types.Extensions.Internal
   payment?: boolean | Prisma.Participant$paymentArgs<ExtArgs>
   wristband?: boolean | Prisma.Participant$wristbandArgs<ExtArgs>
   collectedMerchandise?: boolean | Prisma.Participant$collectedMerchandiseArgs<ExtArgs>
+  addOns?: boolean | Prisma.Participant$addOnsArgs<ExtArgs>
   _count?: boolean | Prisma.ParticipantCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ParticipantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1384,6 +1528,7 @@ export type $ParticipantPayload<ExtArgs extends runtime.Types.Extensions.Interna
     payment: Prisma.$PaymentPayload<ExtArgs> | null
     wristband: Prisma.$WristbandPayload<ExtArgs> | null
     collectedMerchandise: Prisma.$ParticipantMerchandisePayload<ExtArgs>[]
+    addOns: Prisma.$ParticipantAddOnPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1799,6 +1944,7 @@ export interface Prisma__ParticipantClient<T, Null = never, ExtArgs extends runt
   payment<T extends Prisma.Participant$paymentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Participant$paymentArgs<ExtArgs>>): Prisma.Prisma__PaymentClient<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   wristband<T extends Prisma.Participant$wristbandArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Participant$wristbandArgs<ExtArgs>>): Prisma.Prisma__WristbandClient<runtime.Types.Result.GetResult<Prisma.$WristbandPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   collectedMerchandise<T extends Prisma.Participant$collectedMerchandiseArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Participant$collectedMerchandiseArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ParticipantMerchandisePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  addOns<T extends Prisma.Participant$addOnsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Participant$addOnsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ParticipantAddOnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2302,6 +2448,30 @@ export type Participant$collectedMerchandiseArgs<ExtArgs extends runtime.Types.E
   take?: number
   skip?: number
   distinct?: Prisma.ParticipantMerchandiseScalarFieldEnum | Prisma.ParticipantMerchandiseScalarFieldEnum[]
+}
+
+/**
+ * Participant.addOns
+ */
+export type Participant$addOnsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ParticipantAddOn
+   */
+  select?: Prisma.ParticipantAddOnSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ParticipantAddOn
+   */
+  omit?: Prisma.ParticipantAddOnOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ParticipantAddOnInclude<ExtArgs> | null
+  where?: Prisma.ParticipantAddOnWhereInput
+  orderBy?: Prisma.ParticipantAddOnOrderByWithRelationInput | Prisma.ParticipantAddOnOrderByWithRelationInput[]
+  cursor?: Prisma.ParticipantAddOnWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ParticipantAddOnScalarFieldEnum | Prisma.ParticipantAddOnScalarFieldEnum[]
 }
 
 /**

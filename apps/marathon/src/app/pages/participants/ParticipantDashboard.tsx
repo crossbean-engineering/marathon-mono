@@ -19,6 +19,17 @@ import type { Gender, ShirtSize } from '../../types/packages';
 import { ghPhoneError, isValidGhPhone, toGhIntlPhone } from '../../utils';
 import { useSessionToken } from '../../hooks/useSessionToken';
 import { PACKAGE_SALES_OPEN } from '../../lib/registration-status';
+import { VestSizeGuideLink } from '../../components/VestSizeGuide';
+import { WeekendPackagePicker } from '../../components/WeekendPackagePicker';
+import {
+  addOnTotal,
+  availableBundles,
+  describeAddOn,
+  RACE_ONLY,
+  selectedAddOns,
+  selectionError,
+} from '../../lib/weekendPackage';
+import type { WeekendSelection } from '../../lib/weekendPackage';
 
 const PAYMENT_NETWORKS: PaymentNetwork[] = ['MTN', 'VODAFONE', 'AIRTELTIGO'];
 
@@ -442,8 +453,9 @@ export function PackageTicket({
 
 // ─── Buy Package Form ─────────────────────────────────────────────────────────
 // Stage 1: pick a pass (scrollable ticket list)
-// Stage 2: runner details (name defaults to the user's name, gender, shirt size)
-// Stage 3: payment phone + network (+ OTP if paying with a different number)
+// Stage 2: runner details (name defaults to the user's name, gender, vest size)
+// Stage 3: Weekend Package add-ons (skipped when none are offered)
+// Stage 4: payment phone + network (+ OTP if paying with a different number)
 
 interface BuyPackageFormProps {
   packages: BasePackage[];
@@ -466,7 +478,7 @@ function BuyPackageForm({
 }: BuyPackageFormProps) {
   const { renderPrice } = useRenderPrice();
 
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [packageId, setPackageId] = useState('');
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<ValidateCouponResponse | null>(null);
@@ -474,6 +486,14 @@ function BuyPackageForm({
   const [name, setName] = useState(userName);
   const [gender, setGender] = useState<Gender | ''>('');
   const [shirtSize, setShirtSize] = useState<ShirtSize | ''>('');
+  const [weekend, setWeekend] = useState<WeekendSelection>(RACE_ONLY);
+
+  const { data: addOnsData } = useAkMarathonQuery('listAddOns', { refetchOnWindowFocus: false });
+  const addOns = addOnsData ?? [];
+  // Only a real choice when there's something beyond "Race only".
+  const offersWeekend = availableBundles(addOns).length > 1;
+  const bookedAddOns = selectedAddOns(weekend, addOns);
+  const addOnsCost = addOnTotal(bookedAddOns);
 
   const [momoNumber, setMomoNumber] = useState(toLocalPhone(userPhone));
   const [network, setNetwork] = useState<PaymentNetwork>('MTN');
@@ -483,9 +503,12 @@ function BuyPackageForm({
 
   const selectedPackage = packages.find((p) => p.id === packageId);
   const otpRequired = momoNumber.length >= 9 && formatPhone(momoNumber) !== userPhone;
-  // A 100%-off coupon leaves nothing to charge — that's a different endpoint
-  // (/participants/claim), with no payment/OTP step and no polling after.
-  const isFreeClaim = !!appliedCoupon && appliedCoupon.netAmount === 0;
+  // A 100%-off coupon with no paid add-ons leaves nothing to charge — that's a
+  // different endpoint (/participants/claim), with no payment/OTP step and no
+  // polling after. Coupons cover the race only, so add-ons still get charged.
+  const isFreeClaim = !!appliedCoupon && appliedCoupon.netAmount === 0 && addOnsCost === 0;
+  const racePrice = appliedCoupon ? appliedCoupon.netAmount : selectedPackage?.price ?? 0;
+  const totalDue = racePrice + addOnsCost;
 
   const selectCls = 'w-full px-3 py-2.5 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-sm';
 
@@ -575,10 +598,19 @@ function BuyPackageForm({
       return;
     }
     if (!shirtSize) {
-      toast.error('Please select a shirt size');
+      toast.error('Please select a vest size');
       return;
     }
-    setStep(3);
+    setStep(offersWeekend ? 3 : 4);
+  };
+
+  const handleContinueWeekend = () => {
+    const error = selectionError(weekend, addOns);
+    if (error) {
+      toast.error(error);
+      return;
+    }
+    setStep(4);
   };
 
   const handlePay = async () => {
@@ -606,6 +638,7 @@ function BuyPackageForm({
           momoNumber: formatPhone(momoNumber),
           network,
         },
+        addOnIds: bookedAddOns.map((a) => a.id),
         ...(needsOtp && otpCode ? { otp: otpCode, otpSessionId } : {}),
         ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
       }
@@ -636,7 +669,8 @@ function BuyPackageForm({
         {[
           { n: 1, label: 'Pass' },
           { n: 2, label: 'Runner' },
-          { n: 3, label: 'Payment' },
+          ...(offersWeekend ? [{ n: 3, label: 'Weekend' }] : []),
+          { n: 4, label: 'Payment' },
         ].map(({ n, label }, i) => (
           <div key={n} className="flex items-center gap-2">
             {i > 0 && <div className={`w-4 sm:w-8 h-px ${step > n - 1 ? 'bg-olive' : 'bg-border'}`} />}
@@ -645,7 +679,7 @@ function BuyPackageForm({
               : step > n  ? 'bg-olive/15 text-olive'
                           : 'bg-muted text-muted-foreground'
             }`}>
-              {step > n ? <Check className="w-3.5 h-3.5" /> : <span>{n}.</span>}
+              {step > n ? <Check className="w-3.5 h-3.5" /> : <span>{i + 1}.</span>}
               <span>{label}</span>
             </div>
           </div>
@@ -719,7 +753,10 @@ function BuyPackageForm({
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Shirt Size</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-medium text-muted-foreground">Vest Size</label>
+                  <VestSizeGuideLink />
+                </div>
                 <select
                   value={shirtSize}
                   onChange={(e) => setShirtSize(e.target.value as ShirtSize)}
@@ -737,6 +774,10 @@ function BuyPackageForm({
         )}
 
         {step === 3 && (
+          <WeekendPackagePicker addOns={addOns} value={weekend} onChange={setWeekend} disabled={isProcessing} />
+        )}
+
+        {step === 4 && (
           <div className="space-y-4">
             {/* Order summary */}
             <div className="bg-emerald-900 border border-white/15 rounded-xl p-3.5 flex items-center justify-between gap-3 relative overflow-hidden">
@@ -755,6 +796,21 @@ function BuyPackageForm({
                 ) : selectedPackage ? renderPrice(selectedPackage.price) : ''}
               </p>
             </div>
+
+            {bookedAddOns.length > 0 && (
+              <div className="rounded-xl border border-border divide-y divide-border text-sm">
+                {bookedAddOns.map((addOn) => (
+                  <div key={addOn.id} className="flex items-center justify-between gap-3 px-3.5 py-2.5">
+                    <span className="truncate">{describeAddOn(addOn)}</span>
+                    <span className="font-semibold whitespace-nowrap">{renderPrice(addOn.price)}</span>
+                  </div>
+                ))}
+                <div className="flex items-center justify-between gap-3 px-3.5 py-2.5 font-bold">
+                  <span>Total</span>
+                  <span>{renderPrice(totalDue)}</span>
+                </div>
+              </div>
+            )}
 
             {/* Coupon code */}
             <div>
@@ -915,6 +971,17 @@ function BuyPackageForm({
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back
             </Button>
+            <Button onClick={handleContinueWeekend} disabled={isProcessing} className="flex-1">
+              Continue
+            </Button>
+          </>
+        )}
+        {step === 4 && (
+          <>
+            <Button onClick={() => setStep(offersWeekend ? 3 : 2)} disabled={isProcessing} variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back
+            </Button>
             <Button
               onClick={isFreeClaim ? handleClaim : handlePay}
               disabled={isProcessing || (!isFreeClaim && !isValidGhPhone(momoNumber))}
@@ -931,7 +998,7 @@ function BuyPackageForm({
               ) : isFreeClaim ? (
                 'Claim Package'
               ) : (
-                `Pay ${appliedCoupon ? renderPrice(appliedCoupon.netAmount) : selectedPackage ? renderPrice(selectedPackage.price) : ''}`
+                `Pay ${renderPrice(totalDue)}`
               )}
             </Button>
           </>
@@ -990,6 +1057,19 @@ function RetryPaymentForm({
 
   const switchedPackage = otherPackages.find((p) => p.id === switchPackageId);
   const chargedPackage = switchedPackage ?? currentPackage;
+
+  // A retry keeps the Weekend Package add-ons already booked. The API re-prices
+  // them at today's catalog price, so show that (falling back to the booked
+  // price if the add-on is no longer listed).
+  const { data: catalogData } = useAkMarathonQuery('listAddOns', {
+    query: { activeOnly: false },
+    refetchOnWindowFocus: false,
+  });
+  const keptAddOns = (participant.addOns ?? []).map((booked) => ({
+    ...booked,
+    price: catalogData?.find((a) => a.id === booked.addOnId)?.price ?? booked.price,
+  }));
+  const totalDue = (chargedPackage?.price ?? 0) + addOnTotal(keptAddOns);
 
   const sendOtp = useAkMarathonMutation("sendOTP", {
     onSuccess: (response) => {
@@ -1097,6 +1177,17 @@ function RetryPaymentForm({
           </p>
         </div>
 
+        {keptAddOns.length > 0 && (
+          <div className="rounded-xl border border-border divide-y divide-border text-sm">
+            {keptAddOns.map((addOn) => (
+              <div key={addOn.addOnId} className="flex items-center justify-between gap-3 px-3.5 py-2.5">
+                <span className="truncate">{describeAddOn(addOn)}</span>
+                <span className="font-semibold whitespace-nowrap">{renderPrice(addOn.price)}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Optional package switch */}
         {otherPackages.length > 0 && (
           <div>
@@ -1193,7 +1284,7 @@ function RetryPaymentForm({
               Processing...
             </span>
           ) : (
-            `Pay ${chargedPackage ? renderPrice(chargedPackage.price) : ''}`
+            `Pay ${renderPrice(totalDue)}`
           )}
         </Button>
       </div>

@@ -4,6 +4,7 @@ import { ArrowLeft, RefreshCw, User, IdCard, Gift, Trophy, AlertCircle } from 'l
 import QRCode from 'react-qr-code';
 import { Button } from '../../components/ui';
 import { ParticipantCheckinPanel } from '../../components/ParticipantCheckinPanel';
+import { ParticipantAddOns } from '../../components/ParticipantAddOns';
 
 export default function ParticipantDetailsPage() {
     const navigate = useNavigate();
@@ -93,7 +94,7 @@ export default function ParticipantDetailsPage() {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-6 pt-6 border-t border-border">
                     <div>
-                        <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Shirt Size</p>
+                        <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Vest Size</p>
                         <p className="font-medium uppercase">{participant.shirtSize || '—'}</p>
                     </div>
                     <div>
@@ -109,6 +110,8 @@ export default function ParticipantDetailsPage() {
                         <p className="font-medium">{new Date(participant.createdAt).toLocaleDateString()}</p>
                     </div>
                 </div>
+
+                <ParticipantAddOns addOns={participant.addOns} className="mt-6 pt-6 border-t border-border" />
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">

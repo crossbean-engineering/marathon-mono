@@ -11,9 +11,9 @@
         <td style="padding: 40px 0">
           <table role="presentation" style="width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
             <tr>
-              <td style="background-color: #1b5e20; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+              <td style="background-color: #0c4a6e; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
                 <h1 style="margin: 0; font-size: 24px">Purchase Confirmed</h1>
-                <p style="margin: 8px 0 0 0; font-size: 15px; opacity: 0.9">Akuapem Ridge Marathon</p>
+                <p style="margin: 8px 0 0 0; font-size: 15px; opacity: 0.9">Western City Run</p>
               </td>
             </tr>
             <tr>
@@ -29,6 +29,10 @@
                   <tr>
                     <td style="padding: 10px 0; color: #666666; font-size: 15px; border-bottom: 1px solid #eeeeee;">Package</td>
                     <td style="padding: 10px 0; color: #333333; font-size: 15px; font-weight: bold; text-align: right; border-bottom: 1px solid #eeeeee;">{{ packageName }}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; color: #666666; font-size: 15px; border-bottom: 1px solid #eeeeee;">Weekend Package</td>
+                    <td style="padding: 10px 0; color: #333333; font-size: 15px; font-weight: bold; text-align: right; border-bottom: 1px solid #eeeeee;">{{ weekendPackage }}</td>
                   </tr>
                   <tr>
                     <td style="padding: 10px 0; color: #666666; font-size: 15px; border-bottom: 1px solid #eeeeee;">Amount</td>
@@ -54,12 +58,12 @@
                         Scan this at the gate to check in
                       </p>
                       <img src="{{ qrDataUrl }}" width="180" height="180" alt="Check-in QR code for race code {{ code }}" style="display: block; margin: 0 auto; width: 180px; height: 180px; border: 0;" />
-                      <p style="margin: 16px 0 0 0; color: #1b5e20; font-size: 20px; font-weight: bold; letter-spacing: 2px; font-family: 'Courier New', Courier, monospace;">
+                      <p style="margin: 16px 0 0 0; color: #0c4a6e; font-size: 20px; font-weight: bold; letter-spacing: 2px; font-family: 'Courier New', Courier, monospace;">
                         {{ code }}
                       </p>
                       <p style="margin: 12px 0 0 0; color: #999999; font-size: 13px; line-height: 20px;">
                         QR not showing? Check in here:<br />
-                        <a href="{{ checkinUrl }}" style="color: #1b5e20">{{ checkinUrl }}</a>
+                        <a href="{{ checkinUrl }}" style="color: #0c4a6e">{{ checkinUrl }}</a>
                       </p>
                     </td>
                   </tr>
@@ -68,15 +72,15 @@
                   Keep your race code handy — you'll need it on event day.
                 </p>
                 <p style="margin: 30px 0 0 0; color: #333333; font-size: 16px; line-height: 24px;">
-                  See you on the ridge,<br />
-                  <strong>The Akuapem Ridge Marathon Team</strong>
+                  See you in Takoradi,<br />
+                  <strong>The Western City Run Team</strong>
                 </p>
               </td>
             </tr>
             <tr>
               <td style="padding: 20px 30px; background-color: #f8f9fa; border-radius: 0 0 8px 8px; text-align: center;">
                 <p style="margin: 0; color: #999999; font-size: 12px">
-                  &copy; Akuapem Ridge Marathon. All rights reserved.
+                  &copy; Western City Run. All rights reserved.
                 </p>
               </td>
             </tr>

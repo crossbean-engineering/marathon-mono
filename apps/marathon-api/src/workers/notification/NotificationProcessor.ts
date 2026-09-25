@@ -1,6 +1,10 @@
 import Bull from 'bull';
 import { db, MarathonApiMeta } from '@marathon-api/core';
 import {
+  describeAddOn,
+  ParticipantAddOnInclude,
+} from '@marathon-api/app/addOn';
+import {
   NotificationJob,
   NotificationProvider,
   EmailService,
@@ -28,8 +32,8 @@ type Payload =
     };
 
 const SUBJECTS: Record<Payload['type'], string> = {
-  'account-setup': 'Welcome to Akuapem Ridge Marathon',
-  'package-purchase': 'Your Akuapem Ridge Marathon package is confirmed',
+  'account-setup': 'Welcome to Western City Run',
+  'package-purchase': 'Your Western City Run package is confirmed',
 };
 
 export class NotificationProcessor {
@@ -127,7 +131,7 @@ export class NotificationProcessor {
 
   private smsMessage(payload: Payload): string {
     if (payload.type === 'account-setup') {
-      return `Hi ${payload.data.firstName}, welcome to Akuapem Ridge Marathon. Your account is ready.`;
+      return `Hi ${payload.data.firstName}, welcome to Western City Run. Your account is ready.`;
     }
 
     const d = payload.data;
@@ -163,7 +167,13 @@ export class NotificationProcessor {
     const payment = await db.payment.findUnique({
       where: { id: paymentId },
       include: {
-        participant: { include: { package: true, user: true } },
+        participant: {
+          include: {
+            package: true,
+            user: true,
+            addOns: ParticipantAddOnInclude,
+          },
+        },
         performer: true,
       },
     });
@@ -191,6 +201,9 @@ export class NotificationProcessor {
       data: {
         participantName: participant.name,
         packageName: participant.package.name,
+        weekendPackage:
+          participant.addOns.map((a) => describeAddOn(a.addOn)).join(', ') ||
+          'None',
         amount: (payment.amount / 100).toFixed(2),
         currency: payment.currency,
         transactionId: payment.transactionId,

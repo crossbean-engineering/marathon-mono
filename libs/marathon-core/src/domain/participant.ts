@@ -1,4 +1,5 @@
 import { PackageSummary } from './package';
+import { ParticipantAddOnSummary } from './addOn';
 
 // A merchandise item this participant has actually collected. `collectedAt` is
 // the moment it was first handed over and is preserved across later updates.
@@ -29,6 +30,9 @@ export type BaseParticipant = {
   package?: PackageSummary | null;
   // Populated only when the caller includes the relation (e.g. getParticipant).
   collectedMerchandise?: CollectedMerchandise[];
+  // Weekend Package add-ons booked with this registration. Populated only when
+  // the caller includes the relation (e.g. me, getParticipant).
+  addOns?: ParticipantAddOnSummary[];
   userId: string;
   wristbandCode?: string | null;
   createdAt: string;
@@ -46,6 +50,9 @@ export type BuyPackageBody = {
     gender?: Gender;
   };
   participantId?: string;
+  // Weekend Package add-ons (at most one per type). On a retry, omit to keep
+  // the participant's existing add-ons, or pass the full new set (even []).
+  addOnIds?: string[];
   payment: {
     momoNumber: string;
     network: 'MTN' | 'VODAFONE' | 'AIRTELTIGO';
@@ -72,6 +79,8 @@ export type BuyPackageResponse = {
     // Present only when a coupon was applied.
     originalAmount?: number; // pre-discount price, pesewas
     discountAmount?: number; // amount taken off, pesewas
+    // Present only when add-ons were booked; included in the charged amount.
+    addOnAmount?: number; // pesewas
   };
   // Issued/echoed after OTP verification; reuse within its window to skip re-OTP.
   sessionToken?: string;
@@ -81,8 +90,9 @@ export type BuyPackageResponse = {
 // Nothing is charged, so there is no payment block and no OTP: the settlement
 // is recorded as a `waived` payment of 0 and the participant goes straight to
 // active. A coupon that leaves any balance is rejected — that goes to
-// /participants/buy. Exactly one of participant / participantId, as with
-// BuyPackageBody.
+// /participants/buy — as does a participant with paid add-ons booked, since
+// coupons cover the race package only. Exactly one of participant /
+// participantId, as with BuyPackageBody.
 export type ClaimFreePackageBody = {
   packageId?: string;
   participant?: {
@@ -139,4 +149,5 @@ export type ListParticipantsQuery = {
   wristbandCode?: string;
   gender?: Gender;
   shirtSize?: string;
+  addOnId?: string; // participants who booked this add-on
 };

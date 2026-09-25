@@ -168,8 +168,8 @@ export default function LoginPage() {
         {/* Wordmark */}
         <div className="text-center mb-6">
           <h1 className="font-fredoka font-bold leading-none">
-            <span className="block text-xl text-white tracking-tight">AKUAPEM RIDGE</span>
-            <span className="block text-3xl shimmer-text tracking-tight">MARATHON</span>
+            <span className="block text-xl text-white tracking-tight">WESTERN CITY</span>
+            <span className="block text-3xl shimmer-text tracking-tight">RUN</span>
           </h1>
           <p className="text-yellow-300/80 text-[10px] font-bold uppercase tracking-widest mt-1.5">Staff Portal</p>
         </div>

@@ -1,7 +1,8 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Users, User, UserCheck, LayoutDashboard, IdCard, ArrowLeftRight, FileBarChart, Package, Percent, Flag } from 'lucide-react';
+import { Users, User, UserCheck, LayoutDashboard, IdCard, ArrowLeftRight, FileBarChart, Package, Percent, Flag, BedDouble } from 'lucide-react';
 import { NavItem } from '../../components/ui';
+import ThemeLogo from '../../components/ThemeLogo';
 
 export default function AdminLayout() {
   const { user, logout, isAuthenticated } = useAuth();
@@ -22,6 +23,7 @@ export default function AdminLayout() {
     { path: '/admin/transactions', label: 'Payments', icon: ArrowLeftRight },
     { path: '/admin/packages', label: 'Packages', icon: Package },
     { path: '/admin/coupons', label: 'Coupons', icon: Percent },
+    { path: '/admin/add-ons', label: 'Weekend', icon: BedDouble },
     { path: '/admin/reports', label: 'Reports', icon: FileBarChart },
   ];
 
@@ -32,11 +34,7 @@ export default function AdminLayout() {
         <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 max-w-7xl">
           <div className="flex justify-between items-center gap-2 mb-3 sm:mb-4">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <img
-                src="/hi_res_ARM_logo_horizontal.png"
-                alt="ARM — Akuapem Ridge Marathon"
-                className="h-6 sm:h-7 md:h-9 w-auto max-w-none shrink-0"
-              />
+              <ThemeLogo />
               <div className="min-w-0">
                 <h1 className="text-sm sm:text-xl font-display font-bold text-olive truncate">Admin Portal</h1>
                 <p className="text-[11px] sm:text-sm text-muted-foreground truncate">System Management</p>

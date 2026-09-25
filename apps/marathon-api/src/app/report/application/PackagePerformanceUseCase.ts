@@ -12,7 +12,11 @@ export class PackagePerformanceUseCase {
         _count: { select: { participants: true } },
         participants: {
           where: { status: 'active' },
-          select: { payment: { select: { amount: true, status: true } } },
+          select: {
+            payment: {
+              select: { amount: true, addOnAmount: true, status: true },
+            },
+          },
         },
       },
       orderBy: { createdAt: 'desc' },
@@ -24,7 +28,13 @@ export class PackagePerformanceUseCase {
       participants: pkg._count.participants,
       revenuePesewas: pkg.participants.reduce((sum, participant) => {
         if (participant.payment?.status === 'completed') {
-          return sum + participant.payment.amount;
+          // Weekend Package add-ons ride on the same payment; this is
+          // package revenue only.
+          return (
+            sum +
+            participant.payment.amount -
+            (participant.payment.addOnAmount ?? 0)
+          );
         }
         return sum;
       }, 0),

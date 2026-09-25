@@ -12,6 +12,7 @@ import AdminCheckIn from './CheckIn';
 import PaymentsPage from './Transactions';
 import PackagesPage from './Packages';
 import CouponsPage from './Coupons';
+import AddOnsPage from './AddOns';
 import ReportsPage from './reports/Reports';
 
 
@@ -29,6 +30,7 @@ export const adminRoutes = (
     <Route path="transactions" element={<PaymentsPage />} />
     <Route path="packages" element={<PackagesPage />} />
     <Route path="coupons" element={<CouponsPage />} />
+    <Route path="add-ons" element={<AddOnsPage />} />
     <Route path="reports" element={<ReportsPage />} />
   </Route>
 );

@@ -388,8 +388,10 @@ export const ModelName = {
   Package: 'Package',
   Coupon: 'Coupon',
   Prize: 'Prize',
+  AddOn: 'AddOn',
   Participant: 'Participant',
   ParticipantMerchandise: 'ParticipantMerchandise',
+  ParticipantAddOn: 'ParticipantAddOn',
   Payment: 'Payment',
   User: 'User',
   Wristband: 'Wristband'
@@ -408,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "merchandise" | "package" | "coupon" | "prize" | "participant" | "participantMerchandise" | "payment" | "user" | "wristband"
+    modelProps: "merchandise" | "package" | "coupon" | "prize" | "addOn" | "participant" | "participantMerchandise" | "participantAddOn" | "payment" | "user" | "wristband"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -708,6 +710,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AddOn: {
+      payload: Prisma.$AddOnPayload<ExtArgs>
+      fields: Prisma.AddOnFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AddOnFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AddOnPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AddOnFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AddOnPayload>
+        }
+        findFirst: {
+          args: Prisma.AddOnFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AddOnPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AddOnFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AddOnPayload>
+        }
+        findMany: {
+          args: Prisma.AddOnFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AddOnPayload>[]
+        }
+        create: {
+          args: Prisma.AddOnCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AddOnPayload>
+        }
+        createMany: {
+          args: Prisma.AddOnCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AddOnCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AddOnPayload>[]
+        }
+        delete: {
+          args: Prisma.AddOnDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AddOnPayload>
+        }
+        update: {
+          args: Prisma.AddOnUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AddOnPayload>
+        }
+        deleteMany: {
+          args: Prisma.AddOnDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AddOnUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AddOnUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AddOnPayload>[]
+        }
+        upsert: {
+          args: Prisma.AddOnUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AddOnPayload>
+        }
+        aggregate: {
+          args: Prisma.AddOnAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAddOn>
+        }
+        groupBy: {
+          args: Prisma.AddOnGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AddOnGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AddOnCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AddOnCountAggregateOutputType> | number
+        }
+      }
+    }
     Participant: {
       payload: Prisma.$ParticipantPayload<ExtArgs>
       fields: Prisma.ParticipantFieldRefs
@@ -853,6 +929,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ParticipantMerchandiseCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ParticipantMerchandiseCountAggregateOutputType> | number
+        }
+      }
+    }
+    ParticipantAddOn: {
+      payload: Prisma.$ParticipantAddOnPayload<ExtArgs>
+      fields: Prisma.ParticipantAddOnFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ParticipantAddOnFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParticipantAddOnPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ParticipantAddOnFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParticipantAddOnPayload>
+        }
+        findFirst: {
+          args: Prisma.ParticipantAddOnFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParticipantAddOnPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ParticipantAddOnFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParticipantAddOnPayload>
+        }
+        findMany: {
+          args: Prisma.ParticipantAddOnFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParticipantAddOnPayload>[]
+        }
+        create: {
+          args: Prisma.ParticipantAddOnCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParticipantAddOnPayload>
+        }
+        createMany: {
+          args: Prisma.ParticipantAddOnCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ParticipantAddOnCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParticipantAddOnPayload>[]
+        }
+        delete: {
+          args: Prisma.ParticipantAddOnDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParticipantAddOnPayload>
+        }
+        update: {
+          args: Prisma.ParticipantAddOnUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParticipantAddOnPayload>
+        }
+        deleteMany: {
+          args: Prisma.ParticipantAddOnDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ParticipantAddOnUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ParticipantAddOnUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParticipantAddOnPayload>[]
+        }
+        upsert: {
+          args: Prisma.ParticipantAddOnUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ParticipantAddOnPayload>
+        }
+        aggregate: {
+          args: Prisma.ParticipantAddOnAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateParticipantAddOn>
+        }
+        groupBy: {
+          args: Prisma.ParticipantAddOnGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ParticipantAddOnGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ParticipantAddOnCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ParticipantAddOnCountAggregateOutputType> | number
         }
       }
     }
@@ -1166,6 +1316,23 @@ export const PrizeScalarFieldEnum = {
 export type PrizeScalarFieldEnum = (typeof PrizeScalarFieldEnum)[keyof typeof PrizeScalarFieldEnum]
 
 
+export const AddOnScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  name: 'name',
+  provider: 'provider',
+  description: 'description',
+  occupancy: 'occupancy',
+  price: 'price',
+  capacity: 'capacity',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AddOnScalarFieldEnum = (typeof AddOnScalarFieldEnum)[keyof typeof AddOnScalarFieldEnum]
+
+
 export const ParticipantScalarFieldEnum = {
   id: 'id',
   ic: 'ic',
@@ -1196,6 +1363,17 @@ export const ParticipantMerchandiseScalarFieldEnum = {
 export type ParticipantMerchandiseScalarFieldEnum = (typeof ParticipantMerchandiseScalarFieldEnum)[keyof typeof ParticipantMerchandiseScalarFieldEnum]
 
 
+export const ParticipantAddOnScalarFieldEnum = {
+  id: 'id',
+  participantId: 'participantId',
+  addOnId: 'addOnId',
+  price: 'price',
+  createdAt: 'createdAt'
+} as const
+
+export type ParticipantAddOnScalarFieldEnum = (typeof ParticipantAddOnScalarFieldEnum)[keyof typeof ParticipantAddOnScalarFieldEnum]
+
+
 export const PaymentScalarFieldEnum = {
   id: 'id',
   amount: 'amount',
@@ -1216,6 +1394,7 @@ export const PaymentScalarFieldEnum = {
   requiresAttention: 'requiresAttention',
   originalAmount: 'originalAmount',
   discountAmount: 'discountAmount',
+  addOnAmount: 'addOnAmount',
   couponCode: 'couponCode',
   couponId: 'couponId',
   performedBy: 'performedBy',
@@ -1351,6 +1530,20 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'AddOnType'
+ */
+export type EnumAddOnTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AddOnType'>
+    
+
+
+/**
+ * Reference to a field of type 'AddOnType[]'
+ */
+export type ListEnumAddOnTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AddOnType[]'>
     
 
 
@@ -1607,8 +1800,10 @@ export type GlobalOmitConfig = {
   package?: Prisma.PackageOmit
   coupon?: Prisma.CouponOmit
   prize?: Prisma.PrizeOmit
+  addOn?: Prisma.AddOnOmit
   participant?: Prisma.ParticipantOmit
   participantMerchandise?: Prisma.ParticipantMerchandiseOmit
+  participantAddOn?: Prisma.ParticipantAddOnOmit
   payment?: Prisma.PaymentOmit
   user?: Prisma.UserOmit
   wristband?: Prisma.WristbandOmit

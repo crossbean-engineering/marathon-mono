@@ -122,7 +122,7 @@ export default function ParticipantScanPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm mt-6 pt-6 border-t border-border">
             <div>
-              <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Shirt Size</p>
+              <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Vest Size</p>
               <p className="font-medium uppercase">{participant.shirtSize || '—'}</p>
             </div>
             <div>

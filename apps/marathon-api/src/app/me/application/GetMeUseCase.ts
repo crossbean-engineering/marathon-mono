@@ -6,6 +6,7 @@ import {
   mapParticipant,
   PackageSummarySelect,
 } from '@marathon-api/app/participant';
+import { ParticipantAddOnInclude } from '@marathon-api/app/addOn';
 
 export type GetMeUseCaseParams = { userId: string };
 
@@ -25,6 +26,7 @@ export class GetMeUseCase {
       include: {
         wristband: { select: { code: true } },
         package: { select: PackageSummarySelect },
+        addOns: ParticipantAddOnInclude,
       },
       orderBy: { createdAt: 'desc' },
     });

@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { CheckCircle, Flag, Loader2, Package } from 'lucide-react';
 import { SHIRT_SIZES } from '../types/packages';
 import type { ShirtSize } from '../types/packages';
+import { ParticipantAddOns } from './ParticipantAddOns';
 
 interface ParticipantCheckinPanelProps {
   participant: BaseParticipant;
@@ -93,6 +94,8 @@ export function ParticipantCheckinPanel({ participant, merchandise, onUpdated }:
           <h3 className="font-display font-semibold text-lg">Race-Day Check-In</h3>
         </div>
         <div className="p-6">
+          {/* Travelling runners: what to hand over or confirm at the desk. */}
+          <ParticipantAddOns addOns={participant.addOns} className="mb-5 pb-5 border-b border-border" />
           {participant.runnerNumber ? (
             <div className="flex items-center gap-3 text-green-700 bg-green-50 border border-green-200 rounded-lg p-4">
               <CheckCircle className="w-5 h-5 shrink-0" />

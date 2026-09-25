@@ -6,6 +6,7 @@ import {
   PackageSummarySelect,
   CollectedMerchandiseInclude,
 } from './lib';
+import { ParticipantAddOnInclude } from '@marathon-api/app/addOn';
 
 export type GetParticipantUseCaseParams = {
   id: string;
@@ -20,6 +21,7 @@ export class GetParticipantUseCase {
         wristband: { select: { code: true } },
         package: { select: PackageSummarySelect },
         collectedMerchandise: CollectedMerchandiseInclude,
+        addOns: ParticipantAddOnInclude,
       },
     });
 

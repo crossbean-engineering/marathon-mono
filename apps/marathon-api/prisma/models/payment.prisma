@@ -41,6 +41,7 @@ model Payment {
   requiresAttention Boolean        @default(false) @map("requires_attention")
   originalAmount    Int?           @map("original_amount") // pre-discount price, pesewas
   discountAmount    Int?           @map("discount_amount") // amount taken off, pesewas
+  addOnAmount       Int?           @map("add_on_amount") // add-ons total included in amount, pesewas
   couponCode        String?        @map("coupon_code") // snapshot of applied code
   couponId          String?        @map("coupon_id") @db.Uuid
   performedBy       String         @map("performed_by") @db.Uuid

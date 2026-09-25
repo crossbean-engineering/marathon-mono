@@ -28,6 +28,8 @@ type ControllerT = ApiSpec<'buyPackage'>;
       gender: Joi.string().valid('male', 'female').optional(),
     }),
     participantId: Joi.string(),
+    // Weekend Package add-ons, at most one per type.
+    addOnIds: Joi.array().items(Joi.string()).max(10).optional(),
     payment: Joi.object({
       momoNumber: Joi.string().required(),
       network: Joi.string().valid('MTN', 'VODAFONE', 'AIRTELTIGO').required(),

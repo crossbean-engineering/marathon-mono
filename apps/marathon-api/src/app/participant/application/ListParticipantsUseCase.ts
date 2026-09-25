@@ -2,6 +2,7 @@ import { Injectable } from '@rabstack/rab-api';
 import { BaseParticipant, Gender, ParticipantStatus } from '@marathon/core';
 import { db } from '@marathon-api/core';
 import { mapParticipant, PackageSummarySelect } from './lib';
+import { ParticipantAddOnInclude } from '@marathon-api/app/addOn';
 
 export type ListParticipantsUseCaseParams = {
   packageId?: string;
@@ -11,6 +12,7 @@ export type ListParticipantsUseCaseParams = {
   wristbandCode?: string;
   gender?: Gender;
   shirtSize?: string;
+  addOnId?: string;
 };
 
 @Injectable()
@@ -33,10 +35,15 @@ export class ListParticipantsUseCase {
         wristband: params.wristbandCode
           ? { code: params.wristbandCode }
           : undefined,
+        // Everyone who booked a given add-on, e.g. a hotel's guest list.
+        addOns: params.addOnId
+          ? { some: { addOnId: params.addOnId } }
+          : undefined,
       },
       include: {
         wristband: { select: { code: true } },
         package: { select: PackageSummarySelect },
+        addOns: ParticipantAddOnInclude,
       },
       orderBy: { createdAt: 'desc' },
     });

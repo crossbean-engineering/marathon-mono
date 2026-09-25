@@ -6,6 +6,10 @@ import { ApiDomainError } from '@rabstack/rab-react-sdk';
 import { toast } from 'sonner';
 import { ArrowLeft, Check, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 import { AuthHeader } from '../components/AuthHeader';
+import { VestSizeGuideLink } from '../components/VestSizeGuide';
+import { WeekendPackagePicker } from '../components/WeekendPackagePicker';
+import { addOnTotal, describeAddOn, RACE_ONLY, selectedAddOns, selectionError } from '../lib/weekendPackage';
+import type { WeekendSelection } from '../lib/weekendPackage';
 import { RegistrationClosedNotice } from '../components/RegistrationClosedNotice';
 import { PACKAGE_SALES_OPEN } from '../lib/registration-status';
 import { Button, Input } from '../components/ui';
@@ -52,6 +56,15 @@ export default function GetPassPage() {
   });
   const packages = packagesData ?? [];
   const selectedPackage = packages.find((p) => p.id === packageId);
+
+  const [weekend, setWeekend] = useState<WeekendSelection>(RACE_ONLY);
+  const { data: addOnsData } = useAkMarathonQuery('listAddOns', { refetchOnWindowFocus: false });
+  const addOns = addOnsData ?? [];
+  const bookedAddOns = selectedAddOns(weekend, addOns);
+  const addOnsCost = addOnTotal(bookedAddOns);
+  // Coupons discount the race only; add-ons are always charged.
+  const racePrice = appliedCoupon ? appliedCoupon.netAmount : selectedPackage?.price ?? 0;
+  const totalDue = racePrice + addOnsCost;
 
   const sendOtp = useAkMarathonMutation('sendOTP', {
     onError: (error: ApiDomainError) => {
@@ -118,7 +131,12 @@ export default function GetPassPage() {
       return;
     }
     if (!shirtSize) {
-      toast.error('Please select a shirt size');
+      toast.error('Please select a vest size');
+      return;
+    }
+    const weekendError = selectionError(weekend, addOns);
+    if (weekendError) {
+      toast.error(weekendError);
       return;
     }
     const phoneError = ghPhoneError(phone);
@@ -185,7 +203,8 @@ export default function GetPassPage() {
         setAppliedCoupon(validated);
         setCouponFailedMessage(null);
 
-        if (validated.netAmount === 0) {
+        // Free race and nothing else to pay for — settle without a charge.
+        if (validated.netAmount === 0 && addOnsCost === 0) {
           await claimFreePackage.mutateAsync({
             body: {
               packageId: selectedPackage.id,
@@ -231,6 +250,7 @@ export default function GetPassPage() {
           momoNumber: formatPhone(phone),
           network,
         },
+        addOnIds: bookedAddOns.map((a) => a.id),
         ...(needsPaymentOtp && paymentOtpCode ? { otp: paymentOtpCode, otpSessionId: paymentOtpSessionId } : {}),
         ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
       },
@@ -351,7 +371,10 @@ export default function GetPassPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Shirt Size</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-medium text-muted-foreground">Vest Size</label>
+                  <VestSizeGuideLink />
+                </div>
                 <select
                   value={shirtSize}
                   onChange={(e) => setShirtSize(e.target.value as ShirtSize)}
@@ -365,6 +388,8 @@ export default function GetPassPage() {
                 </select>
               </div>
             </div>
+
+            <WeekendPackagePicker addOns={addOns} value={weekend} onChange={setWeekend} disabled={isBusy} />
 
             <div>
               <PhoneField
@@ -453,6 +478,21 @@ export default function GetPassPage() {
               </p>
             </div>
 
+            {bookedAddOns.length > 0 && (
+              <div className="rounded-xl border border-border divide-y divide-border text-sm">
+                {bookedAddOns.map((addOn) => (
+                  <div key={addOn.id} className="flex items-center justify-between gap-3 px-3.5 py-2.5">
+                    <span className="truncate">{describeAddOn(addOn)}</span>
+                    <span className="font-semibold whitespace-nowrap">{renderPrice(addOn.price)}</span>
+                  </div>
+                ))}
+                <div className="flex items-center justify-between gap-3 px-3.5 py-2.5 font-bold">
+                  <span>Total</span>
+                  <span>{renderPrice(totalDue)}</span>
+                </div>
+              </div>
+            )}
+
             {couponFailedMessage && (
               <p className="text-xs text-red-500">{couponFailedMessage} — showing full price instead.</p>
             )}
@@ -497,7 +537,7 @@ export default function GetPassPage() {
                   <Loader2 className="w-4 h-4 animate-spin" /> Processing...
                 </span>
               ) : (
-                `Pay ${appliedCoupon ? renderPrice(appliedCoupon.netAmount) : renderPrice(selectedPackage.price)}`
+                `Pay ${renderPrice(totalDue)}`
               )}
             </Button>
           </div>

@@ -30,12 +30,14 @@ export type PaymentAvgAggregateOutputType = {
   amount: number | null
   originalAmount: number | null
   discountAmount: number | null
+  addOnAmount: number | null
 }
 
 export type PaymentSumAggregateOutputType = {
   amount: number | null
   originalAmount: number | null
   discountAmount: number | null
+  addOnAmount: number | null
 }
 
 export type PaymentMinAggregateOutputType = {
@@ -55,6 +57,7 @@ export type PaymentMinAggregateOutputType = {
   requiresAttention: boolean | null
   originalAmount: number | null
   discountAmount: number | null
+  addOnAmount: number | null
   couponCode: string | null
   couponId: string | null
   performedBy: string | null
@@ -80,6 +83,7 @@ export type PaymentMaxAggregateOutputType = {
   requiresAttention: boolean | null
   originalAmount: number | null
   discountAmount: number | null
+  addOnAmount: number | null
   couponCode: string | null
   couponId: string | null
   performedBy: string | null
@@ -108,6 +112,7 @@ export type PaymentCountAggregateOutputType = {
   requiresAttention: number
   originalAmount: number
   discountAmount: number
+  addOnAmount: number
   couponCode: number
   couponId: number
   performedBy: number
@@ -122,12 +127,14 @@ export type PaymentAvgAggregateInputType = {
   amount?: true
   originalAmount?: true
   discountAmount?: true
+  addOnAmount?: true
 }
 
 export type PaymentSumAggregateInputType = {
   amount?: true
   originalAmount?: true
   discountAmount?: true
+  addOnAmount?: true
 }
 
 export type PaymentMinAggregateInputType = {
@@ -147,6 +154,7 @@ export type PaymentMinAggregateInputType = {
   requiresAttention?: true
   originalAmount?: true
   discountAmount?: true
+  addOnAmount?: true
   couponCode?: true
   couponId?: true
   performedBy?: true
@@ -172,6 +180,7 @@ export type PaymentMaxAggregateInputType = {
   requiresAttention?: true
   originalAmount?: true
   discountAmount?: true
+  addOnAmount?: true
   couponCode?: true
   couponId?: true
   performedBy?: true
@@ -200,6 +209,7 @@ export type PaymentCountAggregateInputType = {
   requiresAttention?: true
   originalAmount?: true
   discountAmount?: true
+  addOnAmount?: true
   couponCode?: true
   couponId?: true
   performedBy?: true
@@ -315,6 +325,7 @@ export type PaymentGroupByOutputType = {
   requiresAttention: boolean
   originalAmount: number | null
   discountAmount: number | null
+  addOnAmount: number | null
   couponCode: string | null
   couponId: string | null
   performedBy: string
@@ -366,6 +377,7 @@ export type PaymentWhereInput = {
   requiresAttention?: Prisma.BoolFilter<"Payment"> | boolean
   originalAmount?: Prisma.IntNullableFilter<"Payment"> | number | null
   discountAmount?: Prisma.IntNullableFilter<"Payment"> | number | null
+  addOnAmount?: Prisma.IntNullableFilter<"Payment"> | number | null
   couponCode?: Prisma.StringNullableFilter<"Payment"> | string | null
   couponId?: Prisma.UuidNullableFilter<"Payment"> | string | null
   performedBy?: Prisma.UuidFilter<"Payment"> | string
@@ -397,6 +409,7 @@ export type PaymentOrderByWithRelationInput = {
   requiresAttention?: Prisma.SortOrder
   originalAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   discountAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  addOnAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   couponCode?: Prisma.SortOrderInput | Prisma.SortOrder
   couponId?: Prisma.SortOrderInput | Prisma.SortOrder
   performedBy?: Prisma.SortOrder
@@ -431,6 +444,7 @@ export type PaymentWhereUniqueInput = Prisma.AtLeast<{
   requiresAttention?: Prisma.BoolFilter<"Payment"> | boolean
   originalAmount?: Prisma.IntNullableFilter<"Payment"> | number | null
   discountAmount?: Prisma.IntNullableFilter<"Payment"> | number | null
+  addOnAmount?: Prisma.IntNullableFilter<"Payment"> | number | null
   couponCode?: Prisma.StringNullableFilter<"Payment"> | string | null
   couponId?: Prisma.UuidNullableFilter<"Payment"> | string | null
   performedBy?: Prisma.UuidFilter<"Payment"> | string
@@ -462,6 +476,7 @@ export type PaymentOrderByWithAggregationInput = {
   requiresAttention?: Prisma.SortOrder
   originalAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   discountAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  addOnAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   couponCode?: Prisma.SortOrderInput | Prisma.SortOrder
   couponId?: Prisma.SortOrderInput | Prisma.SortOrder
   performedBy?: Prisma.SortOrder
@@ -498,6 +513,7 @@ export type PaymentScalarWhereWithAggregatesInput = {
   requiresAttention?: Prisma.BoolWithAggregatesFilter<"Payment"> | boolean
   originalAmount?: Prisma.IntNullableWithAggregatesFilter<"Payment"> | number | null
   discountAmount?: Prisma.IntNullableWithAggregatesFilter<"Payment"> | number | null
+  addOnAmount?: Prisma.IntNullableWithAggregatesFilter<"Payment"> | number | null
   couponCode?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
   couponId?: Prisma.UuidNullableWithAggregatesFilter<"Payment"> | string | null
   performedBy?: Prisma.UuidWithAggregatesFilter<"Payment"> | string
@@ -526,6 +542,7 @@ export type PaymentCreateInput = {
   requiresAttention?: boolean
   originalAmount?: number | null
   discountAmount?: number | null
+  addOnAmount?: number | null
   couponCode?: string | null
   confirmedAt?: Date | string | null
   createdAt?: Date | string
@@ -555,6 +572,7 @@ export type PaymentUncheckedCreateInput = {
   requiresAttention?: boolean
   originalAmount?: number | null
   discountAmount?: number | null
+  addOnAmount?: number | null
   couponCode?: string | null
   couponId?: string | null
   performedBy: string
@@ -584,6 +602,7 @@ export type PaymentUpdateInput = {
   requiresAttention?: Prisma.BoolFieldUpdateOperationsInput | boolean
   originalAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   discountAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  addOnAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   couponCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -613,6 +632,7 @@ export type PaymentUncheckedUpdateInput = {
   requiresAttention?: Prisma.BoolFieldUpdateOperationsInput | boolean
   originalAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   discountAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  addOnAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   couponCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   performedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -642,6 +662,7 @@ export type PaymentCreateManyInput = {
   requiresAttention?: boolean
   originalAmount?: number | null
   discountAmount?: number | null
+  addOnAmount?: number | null
   couponCode?: string | null
   couponId?: string | null
   performedBy: string
@@ -670,6 +691,7 @@ export type PaymentUpdateManyMutationInput = {
   requiresAttention?: Prisma.BoolFieldUpdateOperationsInput | boolean
   originalAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   discountAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  addOnAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   couponCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -696,6 +718,7 @@ export type PaymentUncheckedUpdateManyInput = {
   requiresAttention?: Prisma.BoolFieldUpdateOperationsInput | boolean
   originalAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   discountAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  addOnAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   couponCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   performedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -739,6 +762,7 @@ export type PaymentCountOrderByAggregateInput = {
   requiresAttention?: Prisma.SortOrder
   originalAmount?: Prisma.SortOrder
   discountAmount?: Prisma.SortOrder
+  addOnAmount?: Prisma.SortOrder
   couponCode?: Prisma.SortOrder
   couponId?: Prisma.SortOrder
   performedBy?: Prisma.SortOrder
@@ -751,6 +775,7 @@ export type PaymentAvgOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   originalAmount?: Prisma.SortOrder
   discountAmount?: Prisma.SortOrder
+  addOnAmount?: Prisma.SortOrder
 }
 
 export type PaymentMaxOrderByAggregateInput = {
@@ -770,6 +795,7 @@ export type PaymentMaxOrderByAggregateInput = {
   requiresAttention?: Prisma.SortOrder
   originalAmount?: Prisma.SortOrder
   discountAmount?: Prisma.SortOrder
+  addOnAmount?: Prisma.SortOrder
   couponCode?: Prisma.SortOrder
   couponId?: Prisma.SortOrder
   performedBy?: Prisma.SortOrder
@@ -795,6 +821,7 @@ export type PaymentMinOrderByAggregateInput = {
   requiresAttention?: Prisma.SortOrder
   originalAmount?: Prisma.SortOrder
   discountAmount?: Prisma.SortOrder
+  addOnAmount?: Prisma.SortOrder
   couponCode?: Prisma.SortOrder
   couponId?: Prisma.SortOrder
   performedBy?: Prisma.SortOrder
@@ -807,6 +834,7 @@ export type PaymentSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   originalAmount?: Prisma.SortOrder
   discountAmount?: Prisma.SortOrder
+  addOnAmount?: Prisma.SortOrder
 }
 
 export type PaymentCreateNestedManyWithoutCouponInput = {
@@ -941,6 +969,7 @@ export type PaymentCreateWithoutCouponInput = {
   requiresAttention?: boolean
   originalAmount?: number | null
   discountAmount?: number | null
+  addOnAmount?: number | null
   couponCode?: string | null
   confirmedAt?: Date | string | null
   createdAt?: Date | string
@@ -969,6 +998,7 @@ export type PaymentUncheckedCreateWithoutCouponInput = {
   requiresAttention?: boolean
   originalAmount?: number | null
   discountAmount?: number | null
+  addOnAmount?: number | null
   couponCode?: string | null
   performedBy: string
   confirmedAt?: Date | string | null
@@ -1026,6 +1056,7 @@ export type PaymentScalarWhereInput = {
   requiresAttention?: Prisma.BoolFilter<"Payment"> | boolean
   originalAmount?: Prisma.IntNullableFilter<"Payment"> | number | null
   discountAmount?: Prisma.IntNullableFilter<"Payment"> | number | null
+  addOnAmount?: Prisma.IntNullableFilter<"Payment"> | number | null
   couponCode?: Prisma.StringNullableFilter<"Payment"> | string | null
   couponId?: Prisma.UuidNullableFilter<"Payment"> | string | null
   performedBy?: Prisma.UuidFilter<"Payment"> | string
@@ -1054,6 +1085,7 @@ export type PaymentCreateWithoutParticipantInput = {
   requiresAttention?: boolean
   originalAmount?: number | null
   discountAmount?: number | null
+  addOnAmount?: number | null
   couponCode?: string | null
   confirmedAt?: Date | string | null
   createdAt?: Date | string
@@ -1082,6 +1114,7 @@ export type PaymentUncheckedCreateWithoutParticipantInput = {
   requiresAttention?: boolean
   originalAmount?: number | null
   discountAmount?: number | null
+  addOnAmount?: number | null
   couponCode?: string | null
   couponId?: string | null
   performedBy: string
@@ -1126,6 +1159,7 @@ export type PaymentUpdateWithoutParticipantInput = {
   requiresAttention?: Prisma.BoolFieldUpdateOperationsInput | boolean
   originalAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   discountAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  addOnAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   couponCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1154,6 +1188,7 @@ export type PaymentUncheckedUpdateWithoutParticipantInput = {
   requiresAttention?: Prisma.BoolFieldUpdateOperationsInput | boolean
   originalAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   discountAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  addOnAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   couponCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   performedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1182,6 +1217,7 @@ export type PaymentCreateWithoutPerformerInput = {
   requiresAttention?: boolean
   originalAmount?: number | null
   discountAmount?: number | null
+  addOnAmount?: number | null
   couponCode?: string | null
   confirmedAt?: Date | string | null
   createdAt?: Date | string
@@ -1210,6 +1246,7 @@ export type PaymentUncheckedCreateWithoutPerformerInput = {
   requiresAttention?: boolean
   originalAmount?: number | null
   discountAmount?: number | null
+  addOnAmount?: number | null
   couponCode?: string | null
   couponId?: string | null
   confirmedAt?: Date | string | null
@@ -1264,6 +1301,7 @@ export type PaymentCreateManyCouponInput = {
   requiresAttention?: boolean
   originalAmount?: number | null
   discountAmount?: number | null
+  addOnAmount?: number | null
   couponCode?: string | null
   performedBy: string
   confirmedAt?: Date | string | null
@@ -1291,6 +1329,7 @@ export type PaymentUpdateWithoutCouponInput = {
   requiresAttention?: Prisma.BoolFieldUpdateOperationsInput | boolean
   originalAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   discountAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  addOnAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   couponCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1319,6 +1358,7 @@ export type PaymentUncheckedUpdateWithoutCouponInput = {
   requiresAttention?: Prisma.BoolFieldUpdateOperationsInput | boolean
   originalAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   discountAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  addOnAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   couponCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   performedBy?: Prisma.StringFieldUpdateOperationsInput | string
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1347,6 +1387,7 @@ export type PaymentUncheckedUpdateManyWithoutCouponInput = {
   requiresAttention?: Prisma.BoolFieldUpdateOperationsInput | boolean
   originalAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   discountAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  addOnAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   couponCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   performedBy?: Prisma.StringFieldUpdateOperationsInput | string
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1374,6 +1415,7 @@ export type PaymentCreateManyPerformerInput = {
   requiresAttention?: boolean
   originalAmount?: number | null
   discountAmount?: number | null
+  addOnAmount?: number | null
   couponCode?: string | null
   couponId?: string | null
   confirmedAt?: Date | string | null
@@ -1401,6 +1443,7 @@ export type PaymentUpdateWithoutPerformerInput = {
   requiresAttention?: Prisma.BoolFieldUpdateOperationsInput | boolean
   originalAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   discountAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  addOnAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   couponCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1429,6 +1472,7 @@ export type PaymentUncheckedUpdateWithoutPerformerInput = {
   requiresAttention?: Prisma.BoolFieldUpdateOperationsInput | boolean
   originalAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   discountAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  addOnAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   couponCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1457,6 +1501,7 @@ export type PaymentUncheckedUpdateManyWithoutPerformerInput = {
   requiresAttention?: Prisma.BoolFieldUpdateOperationsInput | boolean
   originalAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   discountAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  addOnAmount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   couponCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1486,6 +1531,7 @@ export type PaymentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   requiresAttention?: boolean
   originalAmount?: boolean
   discountAmount?: boolean
+  addOnAmount?: boolean
   couponCode?: boolean
   couponId?: boolean
   performedBy?: boolean
@@ -1517,6 +1563,7 @@ export type PaymentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   requiresAttention?: boolean
   originalAmount?: boolean
   discountAmount?: boolean
+  addOnAmount?: boolean
   couponCode?: boolean
   couponId?: boolean
   performedBy?: boolean
@@ -1547,6 +1594,7 @@ export type PaymentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   requiresAttention?: boolean
   originalAmount?: boolean
   discountAmount?: boolean
+  addOnAmount?: boolean
   couponCode?: boolean
   couponId?: boolean
   performedBy?: boolean
@@ -1577,6 +1625,7 @@ export type PaymentSelectScalar = {
   requiresAttention?: boolean
   originalAmount?: boolean
   discountAmount?: boolean
+  addOnAmount?: boolean
   couponCode?: boolean
   couponId?: boolean
   performedBy?: boolean
@@ -1585,7 +1634,7 @@ export type PaymentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type PaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "amount" | "currency" | "status" | "provider" | "gateway" | "orderId" | "transactionId" | "momoNumber" | "network" | "paymentMethod" | "email" | "requestPayload" | "responsePayload" | "invoicePayload" | "reason" | "requiresAttention" | "originalAmount" | "discountAmount" | "couponCode" | "couponId" | "performedBy" | "confirmedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["payment"]>
+export type PaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "amount" | "currency" | "status" | "provider" | "gateway" | "orderId" | "transactionId" | "momoNumber" | "network" | "paymentMethod" | "email" | "requestPayload" | "responsePayload" | "invoicePayload" | "reason" | "requiresAttention" | "originalAmount" | "discountAmount" | "addOnAmount" | "couponCode" | "couponId" | "performedBy" | "confirmedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["payment"]>
 export type PaymentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   participant?: boolean | Prisma.Payment$participantArgs<ExtArgs>
   performer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1627,6 +1676,7 @@ export type $PaymentPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     requiresAttention: boolean
     originalAmount: number | null
     discountAmount: number | null
+    addOnAmount: number | null
     couponCode: string | null
     couponId: string | null
     performedBy: string
@@ -2078,6 +2128,7 @@ export interface PaymentFieldRefs {
   readonly requiresAttention: Prisma.FieldRef<"Payment", 'Boolean'>
   readonly originalAmount: Prisma.FieldRef<"Payment", 'Int'>
   readonly discountAmount: Prisma.FieldRef<"Payment", 'Int'>
+  readonly addOnAmount: Prisma.FieldRef<"Payment", 'Int'>
   readonly couponCode: Prisma.FieldRef<"Payment", 'String'>
   readonly couponId: Prisma.FieldRef<"Payment", 'String'>
   readonly performedBy: Prisma.FieldRef<"Payment", 'String'>

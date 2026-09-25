@@ -10,6 +10,10 @@ import {
   BaseMerchandise,
   CreateMerchandiseBody,
   UpdateMerchandiseBody,
+  BaseAddOn,
+  CreateAddOnBody,
+  UpdateAddOnBody,
+  ListAddOnsQuery,
   BasePackage,
   CreatePackageBody,
   UpdatePackageBody,
@@ -73,6 +77,16 @@ export const MarathonSpecs = {
   >(MarathonApis.updateMerchandise),
   deleteMerchandise: DeleteApi<{ success: true }, { id: string }>(
     MarathonApis.deleteMerchandise,
+  ),
+
+  createAddOn: PostApi<BaseAddOn, CreateAddOnBody>(MarathonApis.createAddOn),
+  listAddOns: GetApi<BaseAddOn[], ListAddOnsQuery>(MarathonApis.listAddOns),
+  getAddOn: GetApi<BaseAddOn, unknown, { id: string }>(MarathonApis.getAddOn),
+  updateAddOn: PutApi<BaseAddOn, UpdateAddOnBody, { id: string }>(
+    MarathonApis.updateAddOn,
+  ),
+  deleteAddOn: DeleteApi<{ success: true }, { id: string }>(
+    MarathonApis.deleteAddOn,
   ),
 
   createPackage: PostApi<BasePackage, CreatePackageBody>(

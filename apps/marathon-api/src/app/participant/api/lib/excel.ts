@@ -1,5 +1,6 @@
 import ExcelJS from 'exceljs';
-import { BaseParticipant } from '@marathon/core';
+import { BaseParticipant, ParticipantAddOnSummary } from '@marathon/core';
+import { describeAddOn } from '@marathon-api/app/addOn';
 
 // Column widths are set explicitly so the sheet is readable without the user
 // having to resize anything.
@@ -9,11 +10,14 @@ const COLUMNS: Partial<ExcelJS.Column>[] = [
   { header: 'Name', key: 'name', width: 26 },
   { header: 'IC', key: 'ic', width: 20 },
   { header: 'Gender', key: 'gender', width: 10 },
-  { header: 'Shirt Size', key: 'shirtSize', width: 12 },
+  { header: 'Vest Size', key: 'shirtSize', width: 12 },
   { header: 'Status', key: 'status', width: 12 },
   { header: 'Package', key: 'packageName', width: 24 },
   { header: 'Package Price (GHS)', key: 'packagePrice', width: 20 },
   { header: 'Package Benefits', key: 'packageBenefits', width: 34 },
+  { header: 'Accommodation', key: 'accommodation', width: 34 },
+  { header: 'Transport', key: 'transport', width: 24 },
+  { header: 'Add-ons (GHS)', key: 'addOnTotal', width: 16 },
   { header: 'Wristband Code', key: 'wristbandCode', width: 20 },
   { header: 'Registered At', key: 'createdAt', width: 22 },
   { header: 'Checked In At', key: 'checkinDate', width: 22 },
@@ -30,6 +34,9 @@ export async function participantsToXlsx(
   sheet.views = [{ state: 'frozen', ySplit: 1 }];
 
   for (const participant of participants) {
+    const addOns = participant.addOns ?? [];
+    const ofType = (type: ParticipantAddOnSummary['type']) =>
+      addOns.filter((a) => a.type === type).map(describeAddOn).join(', ');
     sheet.addRow({
       code: participant.code,
       runnerNumber: participant.runnerNumber ?? '',
@@ -43,6 +50,11 @@ export async function participantsToXlsx(
       packagePrice:
         participant.package != null ? participant.package.price / 100 : null,
       packageBenefits: participant.package?.benefits ?? '',
+      accommodation: ofType('accommodation'),
+      transport: ofType('transport'),
+      addOnTotal: addOns.length
+        ? addOns.reduce((sum, a) => sum + a.price, 0) / 100
+        : null,
       wristbandCode: participant.wristbandCode ?? '',
       createdAt: new Date(participant.createdAt),
       checkinDate: participant.checkinDate
@@ -52,6 +64,7 @@ export async function participantsToXlsx(
   }
 
   sheet.getColumn('packagePrice').numFmt = '#,##0.00';
+  sheet.getColumn('addOnTotal').numFmt = '#,##0.00';
   sheet.getColumn('createdAt').numFmt = 'yyyy-mm-dd hh:mm';
   sheet.getColumn('checkinDate').numFmt = 'yyyy-mm-dd hh:mm';
 

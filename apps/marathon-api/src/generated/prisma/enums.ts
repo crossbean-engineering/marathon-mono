@@ -9,6 +9,14 @@
 * 🟢 You can import this file directly.
 */
 
+export const AddOnType = {
+  accommodation: 'accommodation',
+  transport: 'transport'
+} as const
+
+export type AddOnType = (typeof AddOnType)[keyof typeof AddOnType]
+
+
 export const Gender = {
   male: 'male',
   female: 'female'

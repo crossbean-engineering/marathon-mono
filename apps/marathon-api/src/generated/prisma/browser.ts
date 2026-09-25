@@ -38,6 +38,11 @@ export type Coupon = Prisma.CouponModel
  */
 export type Prize = Prisma.PrizeModel
 /**
+ * Model AddOn
+ * 
+ */
+export type AddOn = Prisma.AddOnModel
+/**
  * Model Participant
  * 
  */
@@ -47,6 +52,11 @@ export type Participant = Prisma.ParticipantModel
  * 
  */
 export type ParticipantMerchandise = Prisma.ParticipantMerchandiseModel
+/**
+ * Model ParticipantAddOn
+ * 
+ */
+export type ParticipantAddOn = Prisma.ParticipantAddOnModel
 /**
  * Model Payment
  * 

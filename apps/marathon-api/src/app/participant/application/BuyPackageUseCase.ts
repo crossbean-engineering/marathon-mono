@@ -9,6 +9,7 @@ import { generateTransactionId } from '@marathon-api/lib';
 import { QueueService } from '@marathon-api/integration';
 import { PaymentProcessor } from '@marathon-api/app/payment';
 import { ApplyCouponUseCase } from '@marathon-api/app/coupon';
+import { resolvePurchaseAddOns } from '@marathon-api/app/addOn';
 import { mapParticipant } from './lib';
 import {
   resolveNewParticipant,
@@ -58,10 +59,19 @@ export class BuyPackageUseCase {
       ctx.couponCode = applied.couponCode;
     }
 
-    // A coupon covering the whole price leaves nothing to charge, and Mojo
-    // rejects a zero-amount collection — which would strand the participant on
-    // `pending`. Those registrations are settled by ClaimFreePackageUseCase.
-    if (ctx.price === 0) {
+    // Weekend Package add-ons are charged on top. Coupons discount the race
+    // package only.
+    const addOns = await resolvePurchaseAddOns(
+      params.payload.addOnIds,
+      ctx.existingParticipantId,
+    );
+    const amount = ctx.price + addOns.total;
+
+    // A coupon covering the whole price (with no paid add-ons) leaves nothing
+    // to charge, and Mojo rejects a zero-amount collection — which would strand
+    // the participant on `pending`. Those registrations are settled by
+    // ClaimFreePackageUseCase.
+    if (amount === 0) {
       throw new BadRequestException(
         'This coupon covers the full package price — use /participants/claim instead',
         undefined,
@@ -71,19 +81,21 @@ export class BuyPackageUseCase {
 
     // charge via Mojo collection
     const processed = await this.processor.execute({
-      amount: ctx.price,
+      amount,
       currency: 'GHS',
       mobile: payment.momoNumber,
       network: payment.network,
       email: payment.email,
       customerName: ctx.customerName,
-      orderDescription: `Package: ${ctx.packageName}`,
+      orderDescription: addOns.lines.length
+        ? `Package: ${ctx.packageName} + Weekend Package`
+        : `Package: ${ctx.packageName}`,
     });
 
     const result = await db.$transaction(async (tx) => {
       const paymentRow = await tx.payment.create({
         data: {
-          amount: ctx.price,
+          amount,
           currency: 'GHS',
           status: 'pending',
           provider: 'mojopay',
@@ -96,6 +108,7 @@ export class BuyPackageUseCase {
           email: payment.email,
           originalAmount: ctx.originalPrice,
           discountAmount: ctx.discountAmount,
+          addOnAmount: addOns.lines.length ? addOns.total : null,
           couponCode: ctx.couponCode,
           couponId: ctx.couponId,
           performedBy: params.userId,
@@ -114,6 +127,8 @@ export class BuyPackageUseCase {
               paymentId: paymentRow.id,
               status: 'pending',
               packageId: ctx.switchPackageId,
+              // replace the retried participant's bookings with the resolved set
+              addOns: { deleteMany: {}, create: addOns.lines },
             },
           })
         : await tx.participant.create({
@@ -127,6 +142,7 @@ export class BuyPackageUseCase {
               userId: params.userId,
               packageId: ctx.packageId,
               paymentId: paymentRow.id,
+              addOns: { create: addOns.lines },
             },
           });
 
@@ -152,6 +168,7 @@ export class BuyPackageUseCase {
         status: 'pending',
         originalAmount: ctx.originalPrice,
         discountAmount: ctx.discountAmount,
+        addOnAmount: addOns.lines.length ? addOns.total : undefined,
       },
     };
   }
