@@ -55,8 +55,10 @@ export const ModelName = {
   Package: 'Package',
   Coupon: 'Coupon',
   Prize: 'Prize',
+  AddOn: 'AddOn',
   Participant: 'Participant',
   ParticipantMerchandise: 'ParticipantMerchandise',
+  ParticipantAddOn: 'ParticipantAddOn',
   Payment: 'Payment',
   User: 'User',
   Wristband: 'Wristband'
@@ -127,6 +129,23 @@ export const PrizeScalarFieldEnum = {
 export type PrizeScalarFieldEnum = (typeof PrizeScalarFieldEnum)[keyof typeof PrizeScalarFieldEnum]
 
 
+export const AddOnScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  name: 'name',
+  provider: 'provider',
+  description: 'description',
+  occupancy: 'occupancy',
+  price: 'price',
+  capacity: 'capacity',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AddOnScalarFieldEnum = (typeof AddOnScalarFieldEnum)[keyof typeof AddOnScalarFieldEnum]
+
+
 export const ParticipantScalarFieldEnum = {
   id: 'id',
   ic: 'ic',
@@ -157,6 +176,17 @@ export const ParticipantMerchandiseScalarFieldEnum = {
 export type ParticipantMerchandiseScalarFieldEnum = (typeof ParticipantMerchandiseScalarFieldEnum)[keyof typeof ParticipantMerchandiseScalarFieldEnum]
 
 
+export const ParticipantAddOnScalarFieldEnum = {
+  id: 'id',
+  participantId: 'participantId',
+  addOnId: 'addOnId',
+  price: 'price',
+  createdAt: 'createdAt'
+} as const
+
+export type ParticipantAddOnScalarFieldEnum = (typeof ParticipantAddOnScalarFieldEnum)[keyof typeof ParticipantAddOnScalarFieldEnum]
+
+
 export const PaymentScalarFieldEnum = {
   id: 'id',
   amount: 'amount',
@@ -177,6 +207,7 @@ export const PaymentScalarFieldEnum = {
   requiresAttention: 'requiresAttention',
   originalAmount: 'originalAmount',
   discountAmount: 'discountAmount',
+  addOnAmount: 'addOnAmount',
   couponCode: 'couponCode',
   couponId: 'couponId',
   performedBy: 'performedBy',

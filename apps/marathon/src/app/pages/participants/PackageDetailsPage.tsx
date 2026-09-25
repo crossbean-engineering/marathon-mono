@@ -6,6 +6,7 @@ import type { BaseParticipant } from '@ak-marathon/sdk';
 import { ArrowLeft, CheckCircle, Clock, AlertCircle, Gift, Trophy, User, Download, Loader2 } from 'lucide-react';
 import { Button } from '../../components/ui';
 import { PackageBenefits } from '../../components/PackageBenefits';
+import { ParticipantAddOns } from '../../components/ParticipantAddOns';
 import { useGenerateTicketPdf } from '../../hooks/useGenerateTicketPdf';
 import QRCode from 'react-qr-code';
 
@@ -214,6 +215,8 @@ export default function PackageDetailsPage() {
               <p className="font-medium">{new Date(participant.createdAt).toLocaleDateString()}</p>
             </div>
           </div>
+
+          <ParticipantAddOns addOns={participant.addOns} className="px-5 py-4 border-t border-border" />
 
           {/* Package benefits */}
           <div className="px-5 py-4 border-t border-border">

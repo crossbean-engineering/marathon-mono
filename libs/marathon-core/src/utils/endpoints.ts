@@ -16,6 +16,13 @@ export const MarathonApis = {
   updateMerchandise: '/merchandise/:id',
   deleteMerchandise: '/merchandise/:id',
 
+  // Weekend Package add-ons (accommodation, transport)
+  createAddOn: '/add-ons',
+  listAddOns: '/add-ons',
+  getAddOn: '/add-ons/:id',
+  updateAddOn: '/add-ons/:id',
+  deleteAddOn: '/add-ons/:id',
+
   // Packages
   createPackage: '/packages',
   listPackages: '/packages',

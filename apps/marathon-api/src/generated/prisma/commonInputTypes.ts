@@ -204,6 +204,23 @@ export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
 }
 
+export type EnumAddOnTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.AddOnType | Prisma.EnumAddOnTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AddOnType[] | Prisma.ListEnumAddOnTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AddOnType[] | Prisma.ListEnumAddOnTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAddOnTypeFilter<$PrismaModel> | $Enums.AddOnType
+}
+
+export type EnumAddOnTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AddOnType | Prisma.EnumAddOnTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AddOnType[] | Prisma.ListEnumAddOnTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AddOnType[] | Prisma.ListEnumAddOnTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAddOnTypeWithAggregatesFilter<$PrismaModel> | $Enums.AddOnType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAddOnTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAddOnTypeFilter<$PrismaModel>
+}
+
 export type EnumGenderNullableFilter<$PrismaModel = never> = {
   equals?: $Enums.Gender | Prisma.EnumGenderFieldRefInput<$PrismaModel> | null
   in?: $Enums.Gender[] | Prisma.ListEnumGenderFieldRefInput<$PrismaModel> | null
@@ -642,6 +659,23 @@ export type NestedFloatNullableFilter<$PrismaModel = never> = {
   gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   not?: Prisma.NestedFloatNullableFilter<$PrismaModel> | number | null
+}
+
+export type NestedEnumAddOnTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.AddOnType | Prisma.EnumAddOnTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AddOnType[] | Prisma.ListEnumAddOnTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AddOnType[] | Prisma.ListEnumAddOnTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAddOnTypeFilter<$PrismaModel> | $Enums.AddOnType
+}
+
+export type NestedEnumAddOnTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AddOnType | Prisma.EnumAddOnTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AddOnType[] | Prisma.ListEnumAddOnTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AddOnType[] | Prisma.ListEnumAddOnTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAddOnTypeWithAggregatesFilter<$PrismaModel> | $Enums.AddOnType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAddOnTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAddOnTypeFilter<$PrismaModel>
 }
 
 export type NestedEnumGenderNullableFilter<$PrismaModel = never> = {

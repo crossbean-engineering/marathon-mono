@@ -1,0 +1,96 @@
+### Weekend Package add-ons. Prices are per person, in pesewas.
+### The four creates below seed the options priced in the event brief. The
+### other listed accommodations (Edibec Guest House, Afua Anoa Apartment,
+### Atlantic Hotel, Raybow International Hotel) need prices before they can be
+### added.
+
+### Create KOD Apartment — 3 sharing (admin)
+# @name createKodTriple
+POST {{baseUrl}}/add-ons
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "accommodation",
+  "provider": "KOD Apartment",
+  "name": "Triple room",
+  "occupancy": 3,
+  "price": 15000
+}
+
+### Create KOD Apartment — 2 sharing (admin)
+POST {{baseUrl}}/add-ons
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "accommodation",
+  "provider": "KOD Apartment",
+  "name": "Double room",
+  "occupancy": 2,
+  "price": 22500
+}
+
+### Create KOD Apartment — single occupancy (admin)
+POST {{baseUrl}}/add-ons
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "accommodation",
+  "provider": "KOD Apartment",
+  "name": "Single room",
+  "occupancy": 1,
+  "price": 45000
+}
+
+### Create return group transport (admin)
+# @name createTransport
+POST {{baseUrl}}/add-ons
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "transport",
+  "name": "Return group transportation",
+  "price": 25000
+}
+
+@addOnId = {{createKodTriple.response.body.data.id}}
+@transportId = {{createTransport.response.body.data.id}}
+
+### List bookable add-ons (public)
+GET {{baseUrl}}/add-ons
+
+### List all add-ons including inactive (admin view)
+GET {{baseUrl}}/add-ons?activeOnly=false
+
+### Get add-on
+GET {{baseUrl}}/add-ons/{{addOnId}}
+
+### Update add-on — cap bookings and change price (admin)
+PUT {{baseUrl}}/add-ons/{{addOnId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "capacity": 30,
+  "price": 15000
+}
+
+### Deactivate add-on (admin) — use this once it has bookings
+PUT {{baseUrl}}/add-ons/{{addOnId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "isActive": false
+}
+
+### Delete add-on (admin) — only when nobody has booked it
+DELETE {{baseUrl}}/add-ons/{{addOnId}}
+Authorization: Bearer {{accessToken}}
+
+### Participants who booked an add-on (e.g. a hotel's guest list)
+GET {{baseUrl}}/participants?addOnId={{addOnId}}
+Authorization: Bearer {{accessToken}}

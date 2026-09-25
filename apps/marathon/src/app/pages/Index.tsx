@@ -6,6 +6,7 @@ import { ApiDomainError } from '@rabstack/rab-react-sdk';
 import { useAuth } from '../contexts/AuthContext';
 import { normalizeGhPhone, ghPhoneError, isValidGhPhone, toGhIntlPhone } from '../utils';
 import { VestSizeTable } from '../components/VestSizeGuide';
+import { describeAddOn, WEEKEND_BUNDLES } from '../lib/weekendPackage';
 import {
   EVENT,
   EVENT_CATEGORIES,
@@ -249,6 +250,8 @@ export default function LandingPage() {
   const packages = packagesData ?? [];
   const { renderPrice } = useRenderPrice();
   const prizePackages = packages.filter((pkg) => pkg.prizes.length > 0);
+  const { data: addOnsData } = useAkMarathonQuery('listAddOns', { refetchOnWindowFocus: false });
+  const addOns = addOnsData ?? [];
 
   return (
     <div className="min-h-screen bg-[#03131f] flex items-center justify-center md:p-8">
@@ -723,6 +726,35 @@ export default function LandingPage() {
               ))}
             </ul>
           </div>
+
+          {/* ═══════ WEEKEND PACKAGE (live add-ons) ═══════ */}
+          {addOns.length > 0 && (
+            <div className="mb-5 slide-up" style={{ animationDelay: "0.44s" }}>
+              <SectionTitle>Travelling? Weekend Package</SectionTitle>
+              <div className={`${cardCls} space-y-3`}>
+                <div className="flex flex-wrap justify-center gap-1.5">
+                  {WEEKEND_BUNDLES.filter((b) => b.id !== 'race').map((bundle) => (
+                    <span key={bundle.id} className="bg-white/10 border border-white/15 rounded-full px-2.5 py-0.5 text-white/85 text-[10px] font-bold uppercase tracking-wider">
+                      {bundle.label}
+                    </span>
+                  ))}
+                </div>
+                <ul className="space-y-1.5">
+                  {addOns.map((addOn) => (
+                    <li key={addOn.id} className="flex items-center justify-between gap-3 text-xs">
+                      <span className="text-white/85 font-semibold">
+                        {addOn.type === 'accommodation' ? '🏨' : '🚌'} {describeAddOn(addOn)}
+                      </span>
+                      <span className="text-yellow-300 font-bold whitespace-nowrap">
+                        {addOn.remaining === 0 ? 'Fully booked' : `${renderPrice(addOn.price)}/person`}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-white/60 text-[11px] text-center">Add it to your registration when you sign up.</p>
+              </div>
+            </div>
+          )}
 
           {/* ═══════ VEST SIZE GUIDE ═══════ */}
           <div className="slide-up" style={{ animationDelay: "0.46s" }}>

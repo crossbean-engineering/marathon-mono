@@ -1,5 +1,9 @@
 import { Participant, Prisma } from '@marathon-api/prisma';
 import { BaseParticipant } from '@marathon/core';
+import {
+  mapParticipantAddOn,
+  ParticipantAddOnRow,
+} from '@marathon-api/app/addOn';
 
 // Scalar package fields to select when embedding basic package info on a
 // participant (see BaseParticipant.package).
@@ -33,6 +37,7 @@ type ParticipantRow = Participant & {
   wristband?: { code: string } | null;
   package?: PackageSummaryRow | null;
   collectedMerchandise?: CollectedMerchandiseRow[];
+  addOns?: ParticipantAddOnRow[];
 };
 
 export function mapParticipant(row: ParticipantRow): BaseParticipant {
@@ -61,6 +66,7 @@ export function mapParticipant(row: ParticipantRow): BaseParticipant {
       description: item.merchandise.description,
       collectedAt: item.collectedAt.toISOString(),
     })),
+    addOns: row.addOns?.map(mapParticipantAddOn),
     userId: row.userId,
     wristbandCode: row.wristband?.code ?? null,
     createdAt: row.createdAt.toISOString(),

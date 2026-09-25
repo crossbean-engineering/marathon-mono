@@ -8,9 +8,26 @@ export declare type AddAdminUserBody = {
     role: 'admin' | 'agent';
 };
 
+export declare type AddOnType = 'accommodation' | 'transport';
+
 export declare type AuthResponse = {
     accessToken: string;
     user: BaseUser;
+};
+
+export declare type BaseAddOn = {
+    id: string;
+    type: AddOnType;
+    name: string;
+    provider?: string | null;
+    description?: string | null;
+    occupancy?: number | null;
+    price: number;
+    capacity?: number | null;
+    booked: number;
+    remaining: number | null;
+    isActive: boolean;
+    createdAt: string;
 };
 
 export declare type BaseCoupon = {
@@ -52,6 +69,7 @@ export declare type BaseParticipant = {
     packageId: string;
     package?: PackageSummary | null;
     collectedMerchandise?: CollectedMerchandise[];
+    addOns?: ParticipantAddOnSummary[];
     userId: string;
     wristbandCode?: string | null;
     createdAt: string;
@@ -125,6 +143,7 @@ export declare type BuyPackageBody = {
         gender?: Gender;
     };
     participantId?: string;
+    addOnIds?: string[];
     payment: {
         momoNumber: string;
         network: 'MTN' | 'VODAFONE' | 'AIRTELTIGO';
@@ -145,6 +164,7 @@ export declare type BuyPackageResponse = {
         status: 'pending';
         originalAmount?: number;
         discountAmount?: number;
+        addOnAmount?: number;
     };
     sessionToken?: string;
 };
@@ -193,6 +213,17 @@ export declare type CollectionCallbackResponse = {
     received: true;
 };
 
+export declare type CreateAddOnBody = {
+    type: AddOnType;
+    name: string;
+    provider?: string;
+    description?: string;
+    occupancy?: number;
+    price: number;
+    capacity?: number;
+    isActive?: boolean;
+};
+
 export declare type CreateCouponBody = {
     percentOff: number;
     isActive?: boolean;
@@ -226,6 +257,11 @@ export declare enum ErrorCode {
     COUPON_NOT_APPLICABLE = "COUPON_NOT_APPLICABLE",
     MERCHANDISE_NOT_FOUND = "MERCHANDISE_NOT_FOUND",
     MERCHANDISE_NOT_IN_PACKAGE = "MERCHANDISE_NOT_IN_PACKAGE",
+    ADD_ON_NOT_FOUND = "ADD_ON_NOT_FOUND",
+    ADD_ON_INACTIVE = "ADD_ON_INACTIVE",
+    ADD_ON_SOLD_OUT = "ADD_ON_SOLD_OUT",
+    ADD_ON_CONFLICT = "ADD_ON_CONFLICT",// two add-ons of the same type
+    ADD_ON_IN_USE = "ADD_ON_IN_USE",// has bookings — deactivate instead
     PRIZE_NOT_FOUND = "PRIZE_NOT_FOUND",
     PARTICIPANT_NOT_FOUND = "PARTICIPANT_NOT_FOUND",
     PARTICIPANT_NAME_TAKEN = "PARTICIPANT_NAME_TAKEN",
@@ -266,6 +302,11 @@ export declare type GenerateWristbandsResponse = {
     wristbands: BaseWristband[];
 };
 
+export declare type ListAddOnsQuery = {
+    type?: AddOnType;
+    activeOnly?: boolean;
+};
+
 export declare type ListParticipantsQuery = {
     packageId?: string;
     status?: ParticipantStatus;
@@ -274,6 +315,7 @@ export declare type ListParticipantsQuery = {
     wristbandCode?: string;
     gender?: Gender;
     shirtSize?: string;
+    addOnId?: string;
 };
 
 export declare type ListPaymentsQuery = {
@@ -293,6 +335,163 @@ export declare type LoginBody = {
     phone: string;
     otp: string;
     otpSessionId: string;
+};
+
+export declare const WinRegistryApis: {
+    readonly healthCheck: "/health-check";
+    readonly sendOTP: "/otp/send";
+    readonly signUp: "/auth/signup";
+    readonly login: "/auth/login";
+    readonly me: "/me";
+    readonly createMerchandise: "/merchandise";
+    readonly listMerchandise: "/merchandise";
+    readonly getMerchandise: "/merchandise/:id";
+    readonly updateMerchandise: "/merchandise/:id";
+    readonly deleteMerchandise: "/merchandise/:id";
+    readonly createAddOn: "/add-ons";
+    readonly listAddOns: "/add-ons";
+    readonly getAddOn: "/add-ons/:id";
+    readonly updateAddOn: "/add-ons/:id";
+    readonly deleteAddOn: "/add-ons/:id";
+    readonly createPackage: "/packages";
+    readonly listPackages: "/packages";
+    readonly getPackage: "/packages/:id";
+    readonly updatePackage: "/packages/:id";
+    readonly deletePackage: "/packages/:id";
+    readonly deletePrize: "/packages/:packageId/prizes/:prizeId";
+    readonly createCoupon: "/coupons";
+    readonly listCoupons: "/coupons";
+    readonly getCoupon: "/coupons/:id";
+    readonly updateCoupon: "/coupons/:id";
+    readonly deleteCoupon: "/coupons/:id";
+    readonly validateCoupon: "/coupons/validate";
+    readonly buyPackage: "/participants/buy";
+    readonly claimFreePackage: "/participants/claim";
+    readonly listParticipants: "/participants";
+    readonly exportParticipants: "/participants/export";
+    readonly getParticipant: "/participants/:id";
+    readonly checkInParticipant: "/participants/:id/checkin";
+    readonly setCollectedMerchandise: "/participants/:id/merchandise";
+    readonly verifyPayment: "/payments/verify";
+    readonly collectionCallback: "/payments/callback/:trustId";
+    readonly listPayments: "/payments";
+    readonly generateWristbands: "/wristbands/generate";
+    readonly listWristbands: "/wristbands";
+    readonly getWristband: "/wristbands/:id";
+    readonly updateWristband: "/wristbands/:id";
+    readonly deleteWristband: "/wristbands/:id";
+    readonly redeemWristband: "/wristbands/redeem";
+    readonly bootstrapAdmin: "/admin/bootstrap";
+    readonly addAdminUser: "/admin/users";
+    readonly listUsers: "/admin/users";
+    readonly stats: "/reports/stats";
+    readonly reports: "/reports";
+};
+
+export declare type WinRegistryApiSpecT = typeof WinRegistrySpecs;
+
+export declare const WinRegistrySpecs: {
+    healthCheck: EndpointSpec<ServerHealth, unknown, unknown, unknown>;
+    sendOTP: EndpointSpec<SendOTPResponse, SendOTPBody, unknown, unknown>;
+    signUp: EndpointSpec<AuthResponse, SignUpBody, unknown, unknown>;
+    login: EndpointSpec<AuthResponse, LoginBody, unknown, unknown>;
+    me: EndpointSpec<MeResponse, unknown, unknown, unknown>;
+    createMerchandise: EndpointSpec<BaseMerchandise, CreateMerchandiseBody, unknown, unknown>;
+    listMerchandise: EndpointSpec<BaseMerchandise[], unknown, unknown, unknown>;
+    getMerchandise: EndpointSpec<BaseMerchandise, unknown, unknown, {
+    id: string;
+    }>;
+    updateMerchandise: EndpointSpec<BaseMerchandise, Partial<CreateMerchandiseBody>, unknown, {
+    id: string;
+    }>;
+    deleteMerchandise: EndpointSpec<    {
+    success: true;
+    }, unknown, unknown, {
+    id: string;
+    }>;
+    createAddOn: EndpointSpec<BaseAddOn, CreateAddOnBody, unknown, unknown>;
+    listAddOns: EndpointSpec<BaseAddOn[], unknown, ListAddOnsQuery, unknown>;
+    getAddOn: EndpointSpec<BaseAddOn, unknown, unknown, {
+    id: string;
+    }>;
+    updateAddOn: EndpointSpec<BaseAddOn, UpdateAddOnBody, unknown, {
+    id: string;
+    }>;
+    deleteAddOn: EndpointSpec<    {
+    success: true;
+    }, unknown, unknown, {
+    id: string;
+    }>;
+    createPackage: EndpointSpec<BasePackage, CreatePackageBody, unknown, unknown>;
+    listPackages: EndpointSpec<BasePackage[], unknown, unknown, unknown>;
+    getPackage: EndpointSpec<BasePackage, unknown, unknown, {
+    id: string;
+    }>;
+    updatePackage: EndpointSpec<BasePackage, UpdatePackageBody, unknown, {
+    id: string;
+    }>;
+    deletePackage: EndpointSpec<    {
+    success: true;
+    }, unknown, unknown, {
+    id: string;
+    }>;
+    deletePrize: EndpointSpec<    {
+    success: true;
+    }, unknown, unknown, {
+    packageId: string;
+    prizeId: string;
+    }>;
+    createCoupon: EndpointSpec<BaseCoupon, CreateCouponBody, unknown, unknown>;
+    listCoupons: EndpointSpec<BaseCoupon[], unknown, unknown, unknown>;
+    getCoupon: EndpointSpec<BaseCoupon, unknown, unknown, {
+    id: string;
+    }>;
+    updateCoupon: EndpointSpec<BaseCoupon, UpdateCouponBody, unknown, {
+    id: string;
+    }>;
+    deleteCoupon: EndpointSpec<    {
+    success: true;
+    }, unknown, unknown, {
+    id: string;
+    }>;
+    validateCoupon: EndpointSpec<ValidateCouponResponse, ValidateCouponBody, unknown, unknown>;
+    buyPackage: EndpointSpec<BuyPackageResponse, BuyPackageBody, unknown, unknown>;
+    claimFreePackage: EndpointSpec<ClaimFreePackageResponse, ClaimFreePackageBody, unknown, unknown>;
+    listParticipants: EndpointSpec<BaseParticipant[], unknown, ListParticipantsQuery, unknown>;
+    exportParticipants: EndpointSpec<string, unknown, ListParticipantsQuery, unknown>;
+    getParticipant: EndpointSpec<BaseParticipant, unknown, unknown, {
+    id: string;
+    }>;
+    checkInParticipant: EndpointSpec<BaseParticipant, CheckInParticipantBody, unknown, {
+    id: string;
+    }>;
+    setCollectedMerchandise: EndpointSpec<SetCollectedMerchandiseResponse, SetCollectedMerchandiseBody, unknown, {
+    id: string;
+    }>;
+    verifyPayment: EndpointSpec<VerifyPaymentResponse, VerifyPaymentBody, unknown, unknown>;
+    collectionCallback: EndpointSpec<CollectionCallbackResponse, CollectionCallbackBody, unknown, {
+    trustId: string;
+    }>;
+    listPayments: EndpointSpec<BasePayment[], unknown, ListPaymentsQuery, unknown>;
+    generateWristbands: EndpointSpec<GenerateWristbandsResponse, GenerateWristbandsBody, unknown, unknown>;
+    listWristbands: EndpointSpec<BaseWristband[], unknown, ListWristbandsQuery, unknown>;
+    getWristband: EndpointSpec<BaseWristband, unknown, unknown, {
+    id: string;
+    }>;
+    updateWristband: EndpointSpec<BaseWristband, UpdateWristbandBody, unknown, {
+    id: string;
+    }>;
+    deleteWristband: EndpointSpec<    {
+    success: true;
+    }, unknown, unknown, {
+    id: string;
+    }>;
+    redeemWristband: EndpointSpec<RedeemWristbandResponse, RedeemWristbandBody, unknown, unknown>;
+    bootstrapAdmin: EndpointSpec<BaseUser, BootstrapAdminBody, unknown, unknown>;
+    addAdminUser: EndpointSpec<BaseUser, AddAdminUserBody, unknown, unknown>;
+    listUsers: EndpointSpec<BaseUser[], unknown, ListUsersQuery, unknown>;
+    stats: EndpointSpec<StatsResponse, unknown, StatsQuery, unknown>;
+    reports: EndpointSpec<ReportsResponse, unknown, ReportQuery, unknown>;
 };
 
 export declare type MeResponse = {
@@ -322,6 +521,15 @@ export declare type PackageSummary = Pick<BasePackage, 'id' | 'name' | 'price' |
 export declare type PaginationQuery = {
     page?: number;
     pageSize?: number;
+};
+
+export declare type ParticipantAddOnSummary = {
+    addOnId: string;
+    type: AddOnType;
+    name: string;
+    provider?: string | null;
+    occupancy?: number | null;
+    price: number;
 };
 
 export declare type ParticipantStats = {
@@ -413,6 +621,16 @@ export declare type StatsResponse = UserStats | ParticipantStats | WristbandStat
 
 export declare type StatsType = 'user_stats' | 'participant_stats' | 'wristband_stats' | 'financial_stats';
 
+export declare type UpdateAddOnBody = {
+    name?: string;
+    provider?: string | null;
+    description?: string | null;
+    occupancy?: number | null;
+    price?: number;
+    capacity?: number | null;
+    isActive?: boolean;
+};
+
 export declare type UpdateCouponBody = {
     percentOff?: number;
     isActive?: boolean;
@@ -472,145 +690,6 @@ export declare type VerifyPaymentBody = {
 
 export declare type VerifyPaymentResponse = {
     status: PaymentStatus;
-};
-
-export declare const WinRegistryApis: {
-    readonly healthCheck: "/health-check";
-    readonly sendOTP: "/otp/send";
-    readonly signUp: "/auth/signup";
-    readonly login: "/auth/login";
-    readonly me: "/me";
-    readonly createMerchandise: "/merchandise";
-    readonly listMerchandise: "/merchandise";
-    readonly getMerchandise: "/merchandise/:id";
-    readonly updateMerchandise: "/merchandise/:id";
-    readonly deleteMerchandise: "/merchandise/:id";
-    readonly createPackage: "/packages";
-    readonly listPackages: "/packages";
-    readonly getPackage: "/packages/:id";
-    readonly updatePackage: "/packages/:id";
-    readonly deletePackage: "/packages/:id";
-    readonly deletePrize: "/packages/:packageId/prizes/:prizeId";
-    readonly createCoupon: "/coupons";
-    readonly listCoupons: "/coupons";
-    readonly getCoupon: "/coupons/:id";
-    readonly updateCoupon: "/coupons/:id";
-    readonly deleteCoupon: "/coupons/:id";
-    readonly validateCoupon: "/coupons/validate";
-    readonly buyPackage: "/participants/buy";
-    readonly claimFreePackage: "/participants/claim";
-    readonly listParticipants: "/participants";
-    readonly exportParticipants: "/participants/export";
-    readonly getParticipant: "/participants/:id";
-    readonly checkInParticipant: "/participants/:id/checkin";
-    readonly setCollectedMerchandise: "/participants/:id/merchandise";
-    readonly verifyPayment: "/payments/verify";
-    readonly collectionCallback: "/payments/callback/:trustId";
-    readonly listPayments: "/payments";
-    readonly generateWristbands: "/wristbands/generate";
-    readonly listWristbands: "/wristbands";
-    readonly getWristband: "/wristbands/:id";
-    readonly updateWristband: "/wristbands/:id";
-    readonly deleteWristband: "/wristbands/:id";
-    readonly redeemWristband: "/wristbands/redeem";
-    readonly bootstrapAdmin: "/admin/bootstrap";
-    readonly addAdminUser: "/admin/users";
-    readonly listUsers: "/admin/users";
-    readonly stats: "/reports/stats";
-    readonly reports: "/reports";
-};
-
-export declare type WinRegistryApiSpecT = typeof WinRegistrySpecs;
-
-export declare const WinRegistrySpecs: {
-    healthCheck: EndpointSpec<ServerHealth, unknown, unknown, unknown>;
-    sendOTP: EndpointSpec<SendOTPResponse, SendOTPBody, unknown, unknown>;
-    signUp: EndpointSpec<AuthResponse, SignUpBody, unknown, unknown>;
-    login: EndpointSpec<AuthResponse, LoginBody, unknown, unknown>;
-    me: EndpointSpec<MeResponse, unknown, unknown, unknown>;
-    createMerchandise: EndpointSpec<BaseMerchandise, CreateMerchandiseBody, unknown, unknown>;
-    listMerchandise: EndpointSpec<BaseMerchandise[], unknown, unknown, unknown>;
-    getMerchandise: EndpointSpec<BaseMerchandise, unknown, unknown, {
-    id: string;
-    }>;
-    updateMerchandise: EndpointSpec<BaseMerchandise, Partial<CreateMerchandiseBody>, unknown, {
-    id: string;
-    }>;
-    deleteMerchandise: EndpointSpec<    {
-    success: true;
-    }, unknown, unknown, {
-    id: string;
-    }>;
-    createPackage: EndpointSpec<BasePackage, CreatePackageBody, unknown, unknown>;
-    listPackages: EndpointSpec<BasePackage[], unknown, unknown, unknown>;
-    getPackage: EndpointSpec<BasePackage, unknown, unknown, {
-    id: string;
-    }>;
-    updatePackage: EndpointSpec<BasePackage, UpdatePackageBody, unknown, {
-    id: string;
-    }>;
-    deletePackage: EndpointSpec<    {
-    success: true;
-    }, unknown, unknown, {
-    id: string;
-    }>;
-    deletePrize: EndpointSpec<    {
-    success: true;
-    }, unknown, unknown, {
-    packageId: string;
-    prizeId: string;
-    }>;
-    createCoupon: EndpointSpec<BaseCoupon, CreateCouponBody, unknown, unknown>;
-    listCoupons: EndpointSpec<BaseCoupon[], unknown, unknown, unknown>;
-    getCoupon: EndpointSpec<BaseCoupon, unknown, unknown, {
-    id: string;
-    }>;
-    updateCoupon: EndpointSpec<BaseCoupon, UpdateCouponBody, unknown, {
-    id: string;
-    }>;
-    deleteCoupon: EndpointSpec<    {
-    success: true;
-    }, unknown, unknown, {
-    id: string;
-    }>;
-    validateCoupon: EndpointSpec<ValidateCouponResponse, ValidateCouponBody, unknown, unknown>;
-    buyPackage: EndpointSpec<BuyPackageResponse, BuyPackageBody, unknown, unknown>;
-    claimFreePackage: EndpointSpec<ClaimFreePackageResponse, ClaimFreePackageBody, unknown, unknown>;
-    listParticipants: EndpointSpec<BaseParticipant[], unknown, ListParticipantsQuery, unknown>;
-    exportParticipants: EndpointSpec<string, unknown, ListParticipantsQuery, unknown>;
-    getParticipant: EndpointSpec<BaseParticipant, unknown, unknown, {
-    id: string;
-    }>;
-    checkInParticipant: EndpointSpec<BaseParticipant, CheckInParticipantBody, unknown, {
-    id: string;
-    }>;
-    setCollectedMerchandise: EndpointSpec<SetCollectedMerchandiseResponse, SetCollectedMerchandiseBody, unknown, {
-    id: string;
-    }>;
-    verifyPayment: EndpointSpec<VerifyPaymentResponse, VerifyPaymentBody, unknown, unknown>;
-    collectionCallback: EndpointSpec<CollectionCallbackResponse, CollectionCallbackBody, unknown, {
-    trustId: string;
-    }>;
-    listPayments: EndpointSpec<BasePayment[], unknown, ListPaymentsQuery, unknown>;
-    generateWristbands: EndpointSpec<GenerateWristbandsResponse, GenerateWristbandsBody, unknown, unknown>;
-    listWristbands: EndpointSpec<BaseWristband[], unknown, ListWristbandsQuery, unknown>;
-    getWristband: EndpointSpec<BaseWristband, unknown, unknown, {
-    id: string;
-    }>;
-    updateWristband: EndpointSpec<BaseWristband, UpdateWristbandBody, unknown, {
-    id: string;
-    }>;
-    deleteWristband: EndpointSpec<    {
-    success: true;
-    }, unknown, unknown, {
-    id: string;
-    }>;
-    redeemWristband: EndpointSpec<RedeemWristbandResponse, RedeemWristbandBody, unknown, unknown>;
-    bootstrapAdmin: EndpointSpec<BaseUser, BootstrapAdminBody, unknown, unknown>;
-    addAdminUser: EndpointSpec<BaseUser, AddAdminUserBody, unknown, unknown>;
-    listUsers: EndpointSpec<BaseUser[], unknown, ListUsersQuery, unknown>;
-    stats: EndpointSpec<StatsResponse, unknown, StatsQuery, unknown>;
-    reports: EndpointSpec<ReportsResponse, unknown, ReportQuery, unknown>;
 };
 
 export declare type WristbandStats = {

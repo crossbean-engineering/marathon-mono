@@ -3,6 +3,7 @@ export * from './user';
 export * from './otp';
 export * from './auth';
 export * from './merchandise';
+export * from './addOn';
 export * from './prize';
 export * from './package';
 export * from './coupon';

@@ -12,6 +12,7 @@ export interface AccountSetupData {
 export interface PackagePurchaseData {
   participantName: string;
   packageName: string;
+  weekendPackage: string; // booked add-ons, or "None"
   amount: string; // formatted GHS, e.g. "150.00"
   currency: string;
   transactionId: string;

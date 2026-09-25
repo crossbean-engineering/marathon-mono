@@ -3,9 +3,9 @@ name: Test
 # Build and unit tests on pull requests aimed at staging or main. Deploys
 # trust this gate, and branch protection is what makes it mandatory.
 #
-# Not run yet, because the copied code does not pass them: lint (6 errors),
-# `marathon:typecheck` (updateAdminUser missing from the spec) and
-# `marathon:test` (the Nx scaffold test). marathon-spec hits a live API.
+# Not run yet, because the copied code does not pass them: lint (6 errors) and
+# `marathon:typecheck` (updateAdminUser missing from the spec). marathon-spec
+# hits a live API.
 
 on:
   pull_request:
@@ -36,5 +36,5 @@ jobs:
 
       - name: Unit tests
         run: >-
-          yarn nx run-many -t test --exclude marathon marathon-spec
+          yarn nx run-many -t test --exclude marathon-spec
           --skip-nx-cache --passWithNoTests

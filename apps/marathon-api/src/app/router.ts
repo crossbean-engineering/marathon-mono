@@ -4,6 +4,7 @@ import { authRouter } from './auth/router';
 import { meRouter } from './me/router';
 import { merchandiseRouter } from './merchandise/router';
 import { packageRouter } from './package/router';
+import { addOnRouter } from './addOn/router';
 import { couponRouter } from './coupon/router';
 import { participantRouter } from './participant/router';
 import { paymentRouter } from './payment/router';
@@ -20,6 +21,7 @@ export const appRouter = RabApi.createRouter({
     meRouter,
     merchandiseRouter,
     packageRouter,
+    addOnRouter,
     couponRouter,
     participantRouter,
     paymentRouter,

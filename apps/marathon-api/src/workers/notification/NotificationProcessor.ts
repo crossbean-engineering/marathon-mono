@@ -1,6 +1,10 @@
 import Bull from 'bull';
 import { db, MarathonApiMeta } from '@marathon-api/core';
 import {
+  describeAddOn,
+  ParticipantAddOnInclude,
+} from '@marathon-api/app/addOn';
+import {
   NotificationJob,
   NotificationProvider,
   EmailService,
@@ -163,7 +167,13 @@ export class NotificationProcessor {
     const payment = await db.payment.findUnique({
       where: { id: paymentId },
       include: {
-        participant: { include: { package: true, user: true } },
+        participant: {
+          include: {
+            package: true,
+            user: true,
+            addOns: ParticipantAddOnInclude,
+          },
+        },
         performer: true,
       },
     });
@@ -191,6 +201,9 @@ export class NotificationProcessor {
       data: {
         participantName: participant.name,
         packageName: participant.package.name,
+        weekendPackage:
+          participant.addOns.map((a) => describeAddOn(a.addOn)).join(', ') ||
+          'None',
         amount: (payment.amount / 100).toFixed(2),
         currency: payment.currency,
         transactionId: payment.transactionId,

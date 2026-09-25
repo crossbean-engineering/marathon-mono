@@ -13,6 +13,7 @@ import { db } from '@marathon-api/core';
 import { generateTransactionId } from '@marathon-api/lib';
 import { QueueService } from '@marathon-api/integration';
 import { ApplyCouponUseCase } from '@marathon-api/app/coupon';
+import { resolvePurchaseAddOns } from '@marathon-api/app/addOn';
 import { mapParticipant } from './lib';
 import {
   resolveNewParticipant,
@@ -62,6 +63,20 @@ export class ClaimFreePackageUseCase {
     if (applied.netAmount !== 0) {
       throw new BadRequestException(
         'Coupon does not cover the full package price — use /participants/buy instead',
+        undefined,
+        ErrorCode.COUPON_NOT_APPLICABLE,
+      );
+    }
+
+    // Coupons cover the race package only. A retried participant with paid
+    // Weekend Package add-ons still owes for them, so goes through buy.
+    const addOns = await resolvePurchaseAddOns(
+      undefined,
+      ctx.existingParticipantId,
+    );
+    if (addOns.total > 0) {
+      throw new BadRequestException(
+        'Weekend Package add-ons still need payment — use /participants/buy instead',
         undefined,
         ErrorCode.COUPON_NOT_APPLICABLE,
       );

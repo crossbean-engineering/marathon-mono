@@ -22,6 +22,7 @@ export class EmailTemplateService {
 
     'package-purchase': (data: PackagePurchaseData) =>
       `Hello ${data.participantName}, your ${data.packageName} package purchase is confirmed. ` +
+      `Weekend Package: ${data.weekendPackage}. ` +
       `Amount: ${data.currency} ${data.amount}. Race code: ${data.code}. ` +
       `Transaction ID: ${data.transactionId}. Date: ${data.date}. ` +
       `Check in on event day: ${data.checkinUrl}`,

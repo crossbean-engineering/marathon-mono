@@ -16,6 +16,7 @@ type ControllerT = ApiSpec<'listParticipants'>;
     wristbandCode: Joi.string().optional(),
     gender: Joi.string().valid('male', 'female').optional(),
     shirtSize: Joi.string().trim().optional(),
+    addOnId: Joi.string().optional(),
   }),
 })
 export class ListParticipants implements RabApiGet<ControllerT> {
@@ -29,6 +30,7 @@ export class ListParticipants implements RabApiGet<ControllerT> {
       wristbandCode: request.query.wristbandCode,
       gender: request.query.gender,
       shirtSize: request.query.shirtSize,
+      addOnId: request.query.addOnId,
     });
   };
 }

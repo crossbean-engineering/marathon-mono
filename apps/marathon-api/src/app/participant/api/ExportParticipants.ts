@@ -18,6 +18,7 @@ type ControllerT = ApiSpec<'exportParticipants'>;
     wristbandCode: Joi.string().optional(),
     gender: Joi.string().valid('male', 'female').optional(),
     shirtSize: Joi.string().trim().optional(),
+    addOnId: Joi.string().optional(),
   }),
 })
 export class ExportParticipants implements RabApiGet<ControllerT> {
@@ -31,6 +32,7 @@ export class ExportParticipants implements RabApiGet<ControllerT> {
       wristbandCode: request.query.wristbandCode,
       gender: request.query.gender,
       shirtSize: request.query.shirtSize,
+      addOnId: request.query.addOnId,
     });
 
     const workbook = await participantsToXlsx(participants);

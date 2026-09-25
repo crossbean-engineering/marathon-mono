@@ -14,6 +14,12 @@ const WinRegistryApis = {
     getMerchandise: '/merchandise/:id',
     updateMerchandise: '/merchandise/:id',
     deleteMerchandise: '/merchandise/:id',
+    // Weekend Package add-ons (accommodation, transport)
+    createAddOn: '/add-ons',
+    listAddOns: '/add-ons',
+    getAddOn: '/add-ons/:id',
+    updateAddOn: '/add-ons/:id',
+    deleteAddOn: '/add-ons/:id',
     // Packages
     createPackage: '/packages',
     listPackages: '/packages',
@@ -74,6 +80,11 @@ var ErrorCode;
     ErrorCode["COUPON_NOT_APPLICABLE"] = "COUPON_NOT_APPLICABLE";
     ErrorCode["MERCHANDISE_NOT_FOUND"] = "MERCHANDISE_NOT_FOUND";
     ErrorCode["MERCHANDISE_NOT_IN_PACKAGE"] = "MERCHANDISE_NOT_IN_PACKAGE";
+    ErrorCode["ADD_ON_NOT_FOUND"] = "ADD_ON_NOT_FOUND";
+    ErrorCode["ADD_ON_INACTIVE"] = "ADD_ON_INACTIVE";
+    ErrorCode["ADD_ON_SOLD_OUT"] = "ADD_ON_SOLD_OUT";
+    ErrorCode["ADD_ON_CONFLICT"] = "ADD_ON_CONFLICT";
+    ErrorCode["ADD_ON_IN_USE"] = "ADD_ON_IN_USE";
     ErrorCode["PRIZE_NOT_FOUND"] = "PRIZE_NOT_FOUND";
     ErrorCode["PARTICIPANT_NOT_FOUND"] = "PARTICIPANT_NOT_FOUND";
     ErrorCode["PARTICIPANT_NAME_TAKEN"] = "PARTICIPANT_NAME_TAKEN";
@@ -101,6 +112,11 @@ const WinRegistrySpecs = {
     getMerchandise: GetApi(WinRegistryApis.getMerchandise),
     updateMerchandise: PutApi(WinRegistryApis.updateMerchandise),
     deleteMerchandise: DeleteApi(WinRegistryApis.deleteMerchandise),
+    createAddOn: PostApi(WinRegistryApis.createAddOn),
+    listAddOns: GetApi(WinRegistryApis.listAddOns),
+    getAddOn: GetApi(WinRegistryApis.getAddOn),
+    updateAddOn: PutApi(WinRegistryApis.updateAddOn),
+    deleteAddOn: DeleteApi(WinRegistryApis.deleteAddOn),
     createPackage: PostApi(WinRegistryApis.createPackage),
     listPackages: GetApi(WinRegistryApis.listPackages),
     getPackage: GetApi(WinRegistryApis.getPackage),

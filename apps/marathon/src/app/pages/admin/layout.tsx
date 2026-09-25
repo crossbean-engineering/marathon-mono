@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Users, User, UserCheck, LayoutDashboard, IdCard, ArrowLeftRight, FileBarChart, Package, Percent, Flag } from 'lucide-react';
+import { Users, User, UserCheck, LayoutDashboard, IdCard, ArrowLeftRight, FileBarChart, Package, Percent, Flag, BedDouble } from 'lucide-react';
 import { NavItem } from '../../components/ui';
 import ThemeLogo from '../../components/ThemeLogo';
 
@@ -23,6 +23,7 @@ export default function AdminLayout() {
     { path: '/admin/transactions', label: 'Payments', icon: ArrowLeftRight },
     { path: '/admin/packages', label: 'Packages', icon: Package },
     { path: '/admin/coupons', label: 'Coupons', icon: Percent },
+    { path: '/admin/add-ons', label: 'Weekend', icon: BedDouble },
     { path: '/admin/reports', label: 'Reports', icon: FileBarChart },
   ];
 

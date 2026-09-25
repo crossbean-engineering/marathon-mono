@@ -33,6 +33,7 @@ model Participant {
   wristband Wristband?
 
   collectedMerchandise ParticipantMerchandise[]
+  addOns               ParticipantAddOn[]
 
   @@index([userId])
   @@index([packageId])
@@ -56,4 +57,23 @@ model ParticipantMerchandise {
   @@index([participantId])
   @@index([merchandiseId])
   @@map("participant_merchandise")
+}
+
+// An add-on booked with a participant's registration. `price` is a snapshot of
+// the add-on price at booking time, so later catalog edits don't change what
+// was charged.
+model ParticipantAddOn {
+  id            String   @id @default(dbgenerated("uuid_generate_v1()")) @db.Uuid
+  participantId String   @map("participant_id") @db.Uuid
+  addOnId       String   @map("add_on_id") @db.Uuid
+  price         Int // pesewas
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  addOn       AddOn       @relation(fields: [addOnId], references: [id], onDelete: Restrict)
+
+  @@unique([participantId, addOnId])
+  @@index([participantId])
+  @@index([addOnId])
+  @@map("participant_add_ons")
 }
