@@ -18,7 +18,7 @@ export class EmailTemplateService {
    */
   private readonly textRenderers: TextRenderer = {
     'account-setup': (data: AccountSetupData) =>
-      `Hello ${data.firstName}, welcome to Akuapem Ridge Marathon! Your account is ready.`,
+      `Hello ${data.firstName}, welcome to Western City Run! Your account is ready.`,
 
     'package-purchase': (data: PackagePurchaseData) =>
       `Hello ${data.participantName}, your ${data.packageName} package purchase is confirmed. ` +

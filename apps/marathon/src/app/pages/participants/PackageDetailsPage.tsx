@@ -206,7 +206,7 @@ export default function PackageDetailsPage() {
               <p className="font-medium capitalize">{participant.gender || '—'}</p>
             </div>
             <div>
-              <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Shirt Size</p>
+              <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Vest Size</p>
               <p className="font-medium uppercase">{participant.shirtSize || '—'}</p>
             </div>
             <div>

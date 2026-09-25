@@ -19,6 +19,7 @@ import type { Gender, ShirtSize } from '../../types/packages';
 import { ghPhoneError, isValidGhPhone, toGhIntlPhone } from '../../utils';
 import { useSessionToken } from '../../hooks/useSessionToken';
 import { PACKAGE_SALES_OPEN } from '../../lib/registration-status';
+import { VestSizeGuideLink } from '../../components/VestSizeGuide';
 
 const PAYMENT_NETWORKS: PaymentNetwork[] = ['MTN', 'VODAFONE', 'AIRTELTIGO'];
 
@@ -575,7 +576,7 @@ function BuyPackageForm({
       return;
     }
     if (!shirtSize) {
-      toast.error('Please select a shirt size');
+      toast.error('Please select a vest size');
       return;
     }
     setStep(3);
@@ -719,7 +720,10 @@ function BuyPackageForm({
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Shirt Size</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-medium text-muted-foreground">Vest Size</label>
+                  <VestSizeGuideLink />
+                </div>
                 <select
                   value={shirtSize}
                   onChange={(e) => setShirtSize(e.target.value as ShirtSize)}

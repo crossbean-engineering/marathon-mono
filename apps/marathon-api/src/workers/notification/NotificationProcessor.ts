@@ -28,8 +28,8 @@ type Payload =
     };
 
 const SUBJECTS: Record<Payload['type'], string> = {
-  'account-setup': 'Welcome to Akuapem Ridge Marathon',
-  'package-purchase': 'Your Akuapem Ridge Marathon package is confirmed',
+  'account-setup': 'Welcome to Western City Run',
+  'package-purchase': 'Your Western City Run package is confirmed',
 };
 
 export class NotificationProcessor {
@@ -127,7 +127,7 @@ export class NotificationProcessor {
 
   private smsMessage(payload: Payload): string {
     if (payload.type === 'account-setup') {
-      return `Hi ${payload.data.firstName}, welcome to Akuapem Ridge Marathon. Your account is ready.`;
+      return `Hi ${payload.data.firstName}, welcome to Western City Run. Your account is ready.`;
     }
 
     const d = payload.data;

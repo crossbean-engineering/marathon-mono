@@ -6,6 +6,7 @@ import { ApiDomainError } from '@rabstack/rab-react-sdk';
 import { toast } from 'sonner';
 import { ArrowLeft, Check, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 import { AuthHeader } from '../components/AuthHeader';
+import { VestSizeGuideLink } from '../components/VestSizeGuide';
 import { RegistrationClosedNotice } from '../components/RegistrationClosedNotice';
 import { PACKAGE_SALES_OPEN } from '../lib/registration-status';
 import { Button, Input } from '../components/ui';
@@ -118,7 +119,7 @@ export default function GetPassPage() {
       return;
     }
     if (!shirtSize) {
-      toast.error('Please select a shirt size');
+      toast.error('Please select a vest size');
       return;
     }
     const phoneError = ghPhoneError(phone);
@@ -351,7 +352,10 @@ export default function GetPassPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Shirt Size</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-medium text-muted-foreground">Vest Size</label>
+                  <VestSizeGuideLink />
+                </div>
                 <select
                   value={shirtSize}
                   onChange={(e) => setShirtSize(e.target.value as ShirtSize)}

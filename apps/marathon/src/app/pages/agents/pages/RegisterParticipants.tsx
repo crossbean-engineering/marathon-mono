@@ -15,6 +15,7 @@ import {
 } from '../../../components/WristbandScanner';
 import { RegistrationClosedNotice } from '../../../components/RegistrationClosedNotice';
 import { PACKAGE_SALES_OPEN } from '../../../lib/registration-status';
+import { VestSizeGuideLink } from '../../../components/VestSizeGuide';
 import { GENDERS, SHIRT_SIZES } from '../../../types/packages';
 import type { Gender, ShirtSize } from '../../../types/packages';
 import { normalizeGhPhone, ghPhoneError, toGhIntlPhone, normalizePaymentStatus } from '../../../utils';
@@ -402,7 +403,10 @@ export default function RegisterParticipants() {
             {/* Shirt size / gender */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium mb-1.5">Shirt Size</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm font-medium">Vest Size</label>
+                  <VestSizeGuideLink />
+                </div>
                 <select
                   value={form.shirtSize}
                   onChange={e => setForm({ ...form, shirtSize: e.target.value as ShirtSize })}

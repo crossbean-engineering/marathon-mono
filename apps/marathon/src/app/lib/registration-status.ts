@@ -1,8 +1,9 @@
-// Event closed down — flip to true to reopen package sales. Only gates the
-// buyPackage/claimFreePackage purchase flows; login and staff tooling
-// (check-in, participant lists, admin) are unaffected.
-export const PACKAGE_SALES_OPEN = false;
+// Gates the buyPackage/claimFreePackage purchase flows only; login and staff
+// tooling (check-in, participant lists, admin) are unaffected. Open by default —
+// build with VITE_PACKAGE_SALES_OPEN=false to close sales without a code change.
+export const PACKAGE_SALES_OPEN =
+  import.meta.env.VITE_PACKAGE_SALES_OPEN !== 'false';
 
 export const PACKAGE_SALES_CLOSED_TITLE = 'Registration Closed';
 export const PACKAGE_SALES_CLOSED_MESSAGE =
-  "We're no longer accepting new package purchases. If you already have a pass, log in to view it.";
+  "We're no longer accepting new registrations. If you already have a pass, log in to view it.";

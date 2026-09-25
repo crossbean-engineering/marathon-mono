@@ -1,57 +1,25 @@
-import { useAkMarathonMutation } from '@ak-marathon/sdk';
+import { useAkMarathonMutation, useAkMarathonQuery, useRenderPrice } from '@ak-marathon/sdk';
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ApiDomainError } from '@rabstack/rab-react-sdk';
 import { useAuth } from '../contexts/AuthContext';
 import { normalizeGhPhone, ghPhoneError, isValidGhPhone, toGhIntlPhone } from '../utils';
+import { VestSizeTable } from '../components/VestSizeGuide';
+import {
+  EVENT,
+  EVENT_CATEGORIES,
+  EVENT_ROUTE,
+  EVENT_HYDRATION,
+  REGISTRATION_INCLUDES,
+  WELLNESS_VILLAGE,
+  CORPORATE_TEAM_NOTE,
+} from '../lib/event';
 
 type Step = 'phone' | 'otp' | 'signup';
 
-// Official registration packages — landing-page display only; live packages come from the API after login
-const RACE_PACKAGES = [
-  {
-    id: '21km-half-marathon',
-    name: '21km Half Marathon',
-    price: 150,
-    currency: 'GHS',
-    merchandise: ['Shirt', 'Medal'],
-    benefits: ['Hydration Points', 'Wellness Festival'],
-    prizes: [
-      { position: 1, reward: 'GH₵ 5,000' },
-      { position: 2, reward: 'GH₵ 3,000' },
-      { position: 3, reward: 'GH₵ 2,000' },
-    ],
-    prizeNote: 'Cash prizes by completion time',
-  },
-  {
-    id: '10km-5km-corporate-race-walk',
-    name: '10km / 5km Corporate Race & Walk',
-    price: 100,
-    currency: 'GHS',
-    merchandise: ['Shirt', 'Medal'],
-    benefits: ['Hydration Points', 'Wellness Festival'],
-    prizes: [],
-    prizeNote: 'Gift items — every finisher gets a medal',
-  },
-] as const;
-
-const prizeMedal = (position: number) =>
-  position === 1 ? '🥇' : position === 2 ? '🥈' : '🥉';
-
-const footprintDecor = () => (
-  <svg viewBox="0 0 80 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-    {/* sole */}
-    <ellipse cx="40" cy="42" rx="20" ry="32" fill="#4ADE80" opacity="0.5" />
-    {/* heel */}
-    <ellipse cx="42" cy="98" rx="13" ry="16" fill="#22C55E" opacity="0.6" />
-    {/* treads */}
-    <path d="M26 30 Q40 24 54 30" stroke="#166534" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.7" />
-    <path d="M25 44 Q40 38 55 44" stroke="#166534" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.7" />
-    <path d="M27 58 Q40 52 53 58" stroke="#166534" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.7" />
-    <path d="M33 98 Q42 94 51 98" stroke="#166534" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.7" />
-  </svg>
-);
+const prizeMedal = (position?: number | null) =>
+  position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : '🏅';
 
 const confettiDot = (color: string, size: string, top: string, left: string, delay: string) => (
   <div
@@ -61,17 +29,19 @@ const confettiDot = (color: string, size: string, top: string, left: string, del
   />
 );
 
-// Running marathoner silhouette (Material "directions run")
+// Running silhouette (Material "directions run")
 const runnerIcon = (color: string) => (
   <svg viewBox="0 0 24 24" className="w-full h-full" fill={color}>
     <path d="M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9l1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1l-5.2 2.2v4.7h2v-3.4l1.8-.7-1.6 8.1-4.9-1-.4 2 7 1.4z" />
   </svg>
 );
 
-// Kept for when the real marathon images arrive — re-enable together with the commented <FloatingImg /> usages below.
-// const FloatingImg = ({ src, className, style }: { src: string; className?: string; style?: React.CSSProperties }) => (
-//   <img src={src} alt="" className={`object-cover shadow-xl ${className}`} style={style} />
-// );
+// Section heading used down the flyer
+const SectionTitle = ({ children }: { children: React.ReactNode }) => (
+  <p className="text-amber-300 font-condensed font-bold text-sm uppercase tracking-widest text-center mb-2">{children}</p>
+);
+
+const cardCls = "bg-white/10 border border-white/20 rounded-xl p-3.5";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -272,23 +242,28 @@ export default function LandingPage() {
     otpRefs.current[focusIndex]?.focus();
   };
 
+  // Public endpoint — live categories, prices and prizes as configured in admin.
+  const { data: packagesData, isLoading: packagesLoading } = useAkMarathonQuery('listPackages', {
+    refetchOnWindowFocus: false,
+  });
+  const packages = packagesData ?? [];
+  const { renderPrice } = useRenderPrice();
+  const prizePackages = packages.filter((pkg) => pkg.prizes.length > 0);
+
   return (
-    <div className="min-h-screen bg-[#04150e] flex items-center justify-center md:p-8">
+    <div className="min-h-screen bg-[#03131f] flex items-center justify-center md:p-8">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,600;1,700;1,800&family=Great+Vibes&family=Nunito:wght@400;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,600;1,700;1,800&family=Nunito:wght@400;600;700;800;900&display=swap');
         .font-condensed { font-family: 'Barlow Condensed', sans-serif; }
-        .font-script { font-family: 'Great Vibes', cursive; }
         * { font-family: 'Nunito', sans-serif; }
         @keyframes slideUp { 0% { transform: translateY(20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
         @keyframes ticketBounce { 0%, 100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-6px) rotate(-5deg); } 75% { transform: translateY(-3px) rotate(5deg); } }
-        @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-8px) rotate(3deg); } }
-        @keyframes floatReverse { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-6px) rotate(-3deg); } }
+        @keyframes waveDrift { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-4%); } }
         @keyframes runAcross { 0% { left: -14%; } 100% { left: 106%; } }
         @keyframes runBob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-4px) rotate(4deg); } }
         .slide-up { animation: slideUp 0.5s ease-out both; }
         .ticket-bounce { animation: ticketBounce 2s ease-in-out infinite; }
-        .float { animation: float 4s ease-in-out infinite; }
-        .float-reverse { animation: floatReverse 5s ease-in-out infinite; }
+        .wave-drift { animation: waveDrift 9s ease-in-out infinite; }
         .runner { position: absolute; animation-name: runAcross; animation-timing-function: linear; animation-iteration-count: infinite; }
         .runner-bob { animation: runBob 0.5s ease-in-out infinite; }
         @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
@@ -302,52 +277,33 @@ export default function LandingPage() {
         .flyer-shadow {
           box-shadow: 0 25px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.1);
         }
-        .success-pop { animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
       `}</style>
 
-      <div className="relative w-full max-w-lg bg-gradient-to-b from-emerald-950 via-emerald-800 to-emerald-900 sm:rounded-3xl overflow-hidden flyer-shadow">
+      <div className="relative w-full max-w-lg bg-gradient-to-b from-sky-950 via-cyan-900 to-sky-950 sm:rounded-3xl overflow-hidden flyer-shadow">
 
-        {/* Dawn glow over the ridge */}
-        <div className="absolute top-0 inset-x-0 h-72 pointer-events-none" style={{ background: "radial-gradient(ellipse 90% 60% at 50% -10%, rgba(251,191,36,0.22), transparent 65%)" }} />
+        {/* Sunrise over the Gulf of Guinea */}
+        <div className="absolute top-0 inset-x-0 h-72 pointer-events-none" style={{ background: "radial-gradient(ellipse 90% 60% at 50% -10%, rgba(251,191,36,0.25), transparent 65%)" }} />
 
-        {/* Watermark mountain peaks, like the flyer background */}
-        <div className="absolute inset-x-0 top-6 h-96 pointer-events-none opacity-[0.10]">
-          <svg viewBox="0 0 400 180" preserveAspectRatio="none" className="w-full h-full">
-            <path d="M0 180 L45 95 L95 140 L155 40 L215 130 L265 65 L325 140 L365 95 L400 150 L400 180 Z" fill="#a7f3d0" />
+        {/* Watermark swells */}
+        <div className="absolute inset-x-0 top-40 h-40 pointer-events-none opacity-[0.10] wave-drift">
+          <svg viewBox="0 0 400 80" preserveAspectRatio="none" className="w-[110%] h-full">
+            <path d="M0 40 Q50 10 100 40 T200 40 T300 40 T400 40 L400 80 L0 80 Z" fill="#67e8f9" />
           </svg>
         </div>
-        <div className="absolute inset-x-0 top-24 h-80 pointer-events-none opacity-[0.12]">
-          <svg viewBox="0 0 400 160" preserveAspectRatio="none" className="w-full h-full">
-            <path d="M0 160 L60 80 L120 125 L190 35 L250 115 L310 60 L400 135 L400 160 Z" fill="#34d399" />
-          </svg>
-        </div>
-
-        {/* Floating footprints */}
-        <div className="absolute -top-2 -left-4 w-20 h-28 float opacity-60 pointer-events-none">{footprintDecor()}</div>
-        <div className="absolute -top-2 -right-4 w-20 h-28 float-reverse opacity-60 pointer-events-none" style={{ transform: "scaleX(-1)" }}>{footprintDecor()}</div>
-        <div className="absolute bottom-48 -left-6 w-16 h-24 float-reverse opacity-40 pointer-events-none" style={{ transform: "rotate(45deg)" }}>{footprintDecor()}</div>
-        <div className="absolute bottom-64 -right-6 w-16 h-24 float opacity-40 pointer-events-none" style={{ transform: "rotate(-30deg) scaleX(-1)" }}>{footprintDecor()}</div>
-        <div className="absolute bottom-10 -right-4 w-14 h-20 float opacity-30 pointer-events-none" style={{ transform: "rotate(-60deg)" }}>{footprintDecor()}</div>
-        <div className="absolute bottom-4 -left-5 w-16 h-22 float-reverse opacity-35 pointer-events-none" style={{ transform: "rotate(30deg)" }}>{footprintDecor()}</div>
 
         {/* Confetti */}
         {confettiDot("#FDE047", "8px", "3%", "15%", "0s")}
         {confettiDot("#FB923C", "6px", "8%", "85%", "0.5s")}
-        {confettiDot("#4ADE80", "10px", "18%", "92%", "1s")}
+        {confettiDot("#67E8F9", "10px", "18%", "92%", "1s")}
         {confettiDot("#FDE047", "7px", "55%", "4%", "1.5s")}
         {confettiDot("#FB923C", "9px", "65%", "93%", "0.3s")}
-        {confettiDot("#34D399", "6px", "42%", "3%", "0.8s")}
+        {confettiDot("#22D3EE", "6px", "42%", "3%", "0.8s")}
         {confettiDot("#FDE047", "5px", "80%", "7%", "1.2s")}
         {confettiDot("#FB923C", "7px", "88%", "91%", "0.6s")}
         {confettiDot("#FDE047", "6px", "12%", "6%", "0.2s")}
-        {confettiDot("#FB923C", "8px", "26%", "95%", "0.9s")}
-        {confettiDot("#FDE047", "5px", "33%", "90%", "1.4s")}
-        {confettiDot("#4ADE80", "7px", "48%", "94%", "0.4s")}
-        {confettiDot("#FB923C", "6px", "72%", "5%", "1.1s")}
-        {confettiDot("#FDE047", "6px", "93%", "12%", "0.7s")}
-        {confettiDot("#FDE047", "8px", "96%", "82%", "1.6s")}
+        {confettiDot("#67E8F9", "7px", "48%", "94%", "0.4s")}
 
-        {/* Marathoners running across the ridge */}
+        {/* Runners along the coast road */}
         <div className="absolute bottom-16 inset-x-0 h-10 pointer-events-none z-0">
           <div className="runner w-9 h-9 opacity-50" style={{ animationDuration: "11s", animationDelay: "-2s" }}>
             <div className="runner-bob w-full h-full">{runnerIcon("#FDE047")}</div>
@@ -363,41 +319,33 @@ export default function LandingPage() {
         <div className="relative z-10 px-6 pt-8 pb-6">
 
           {/* ═══════ HEADER ═══════ */}
-          <div className="relative text-center mb-3 slide-up">
-            <img
-              src="/hi_res_ARM_logo_horizontal.png"
-              alt="ARM — Akuapem Ridge Marathon"
-              className="h-12 sm:h-14 w-auto max-w-none shrink-0 mx-auto mb-3 drop-shadow-lg"
-            />
-            <p className="text-white/70 text-[10px] font-extrabold uppercase tracking-[0.3em]">Lyf Arena Presents</p>
-            <p className="text-white font-extrabold text-sm uppercase tracking-[0.2em] mt-0.5">Lyf Festival 2026</p>
-            <p className="font-script text-yellow-300 text-3xl leading-none my-1.5">featuring</p>
-            <p className="text-white/90 text-[11px] font-extrabold uppercase tracking-[0.35em] mb-1.5">The Inaugural Edition</p>
+          <div className="relative text-center mb-4 slide-up">
+            <p className="text-white/90 text-[11px] font-extrabold uppercase tracking-[0.35em] mb-1.5">The {EVENT.edition}</p>
             <h1 className="font-condensed italic font-extrabold uppercase leading-[0.88] relative z-10">
-              <span className="block text-5xl md:text-6xl text-white" style={{ textShadow: "2px 3px 0 rgba(0,0,0,0.3)" }}>Akuapem Ridge</span>
-              <span className="block text-5xl md:text-7xl shimmer-text" style={{ textShadow: "2px 3px 0 rgba(0,0,0,0.2)" }}>Marathon</span>
+              <span className="block text-5xl md:text-6xl text-white" style={{ textShadow: "2px 3px 0 rgba(0,0,0,0.3)" }}>Western City</span>
+              <span className="block text-6xl md:text-7xl shimmer-text" style={{ textShadow: "2px 3px 0 rgba(0,0,0,0.2)" }}>Run</span>
             </h1>
-            <p className="text-white/80 font-bold text-sm mt-2 tracking-wide relative z-10">
-              A COMMUNITY ROAD RACE <span className="text-yellow-300">2026</span>
+            <p className="text-white/80 font-bold text-sm mt-2 tracking-wide relative z-10 max-w-xs mx-auto">
+              {EVENT.tagline}
             </p>
           </div>
 
-          {/* ═══════ THEME ═══════ */}
-          <div className="relative flex justify-center mb-4 slide-up" style={{ animationDelay: "0.08s" }}>
-            <div className="relative z-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-1.5 text-center">
-              <span className="text-yellow-300 text-[10px] font-bold uppercase tracking-widest">Theme:</span>
-              <p className="text-white font-condensed font-semibold text-base leading-tight tracking-wide">One Ridge. One People. One Race.</p>
-            </div>
+          {/* ═══════ CATEGORY CHIPS ═══════ */}
+          <div className="flex justify-center flex-wrap gap-1.5 mb-5 slide-up" style={{ animationDelay: "0.08s" }}>
+            {EVENT_CATEGORIES.map((category) => (
+              <span key={category} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1 text-white text-[11px] font-bold uppercase tracking-wider">
+                {category}
+              </span>
+            ))}
           </div>
 
           {/* ═══════ LOGIN ═══════ */}
           <div className="relative mb-5 slide-up" style={{ animationDelay: "0.14s" }}>
-            {/* Login Card */}
             <div className="relative">
-              <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full z-20" style={{ background: "linear-gradient(135deg, #047857, #065f46)" }} />
-              <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full z-20" style={{ background: "linear-gradient(135deg, #047857, #065f46)" }} />
+              <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full z-20" style={{ background: "linear-gradient(135deg, #155e75, #0c4a6e)" }} />
+              <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full z-20" style={{ background: "linear-gradient(135deg, #155e75, #0c4a6e)" }} />
 
-              <div className="bg-emerald-900 border border-white/15 rounded-2xl p-5 md:p-6 relative overflow-hidden shadow-2xl">
+              <div className="bg-sky-900 border border-white/15 rounded-2xl p-5 md:p-6 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
 
                 {/* Step 1: Phone */}
@@ -442,7 +390,7 @@ export default function LandingPage() {
                       disabled={sendOtp.isPending || !isValidGhPhone(phone)}
                       className={`w-full py-3 rounded-xl font-condensed font-bold text-base tracking-wide transition-all duration-300 relative overflow-hidden group
                         ${isValidGhPhone(phone)
-                          ? "bg-gradient-to-r from-yellow-400 to-amber-500 text-emerald-900 shadow-lg shadow-yellow-500/25 hover:shadow-xl hover:shadow-yellow-500/40 hover:scale-[1.02] active:scale-[0.98]"
+                          ? "bg-gradient-to-r from-yellow-400 to-amber-500 text-sky-950 shadow-lg shadow-yellow-500/25 hover:shadow-xl hover:shadow-yellow-500/40 hover:scale-[1.02] active:scale-[0.98]"
                           : "bg-white/6 text-white/20 cursor-not-allowed"
                         } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
@@ -512,7 +460,7 @@ export default function LandingPage() {
                     <button
                       onClick={handleVerifyOTP}
                       disabled={login.isPending || otpCode.join('').length < 4}
-                      className="w-full py-3 rounded-xl font-condensed font-bold text-base tracking-wide transition-all duration-300 bg-gradient-to-r from-yellow-400 to-amber-500 text-emerald-900 shadow-lg shadow-yellow-500/25 hover:shadow-xl hover:shadow-yellow-500/40 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      className="w-full py-3 rounded-xl font-condensed font-bold text-base tracking-wide transition-all duration-300 bg-gradient-to-r from-yellow-400 to-amber-500 text-sky-950 shadow-lg shadow-yellow-500/25 hover:shadow-xl hover:shadow-yellow-500/40 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                     >
                       {login.isPending ? (
                         <span className="flex items-center justify-center gap-2">
@@ -552,7 +500,7 @@ export default function LandingPage() {
                     <div className="text-center mb-4">
                       <span className="text-3xl mb-1.5 block" role="img" aria-label="wave">👋</span>
                       <h2 className="font-condensed font-bold text-white text-xl">Complete Your Profile</h2>
-                      <p className="text-white/70 text-sm mt-0.5">One more step and you're on the Ridge</p>
+                      <p className="text-white/70 text-sm mt-0.5">One more step and you're on the start line</p>
                     </div>
 
                     <div className="bg-white/8 border border-white/10 rounded-xl px-4 py-2.5 mb-4">
@@ -605,7 +553,7 @@ export default function LandingPage() {
                         type="text"
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
-                        placeholder="e.g. East Legon, Accra"
+                        placeholder="e.g. Takoradi"
                         className="w-full bg-white/8 text-white text-base font-semibold px-4 py-3 outline-none placeholder-white/30 rounded-xl border border-white/10 focus:ring-2 focus:ring-yellow-400/50 transition-all"
                       />
                     </div>
@@ -625,7 +573,7 @@ export default function LandingPage() {
                     <button
                       type="submit"
                       disabled={register.isPending || !firstName.trim() || firstName.length < 2 || !lastName.trim() || lastName.length < 2 || !ghanaCard.trim()}
-                      className="w-full py-3 rounded-xl font-condensed font-bold text-base tracking-wide transition-all duration-300 bg-gradient-to-r from-yellow-400 to-amber-500 text-emerald-900 shadow-lg shadow-yellow-500/25 hover:shadow-xl hover:shadow-yellow-500/40 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      className="w-full py-3 rounded-xl font-condensed font-bold text-base tracking-wide transition-all duration-300 bg-gradient-to-r from-yellow-400 to-amber-500 text-sky-950 shadow-lg shadow-yellow-500/25 hover:shadow-xl hover:shadow-yellow-500/40 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                     >
                       {register.isPending ? (
                         <span className="flex items-center justify-center gap-2">
@@ -657,129 +605,145 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* ═══════ DATE / VENUE — COMPACT ═══════ */}
-          <div className="mb-4 slide-up" style={{ animationDelay: "0.20s" }}>
+          {/* ═══════ DATE / VENUE ═══════ */}
+          <div className="mb-5 slide-up" style={{ animationDelay: "0.20s" }}>
             <div className="flex justify-center relative z-10 -mb-3">
-              <span className="bg-gradient-to-r from-yellow-400 to-amber-500 text-emerald-900 font-condensed italic font-bold uppercase tracking-widest text-sm px-5 py-1 rounded-lg shadow-lg">
+              <span className="bg-gradient-to-r from-yellow-400 to-amber-500 text-sky-950 font-condensed italic font-bold uppercase tracking-widest text-sm px-5 py-1 rounded-lg shadow-lg">
                 Race Day
               </span>
             </div>
-            <div className="bg-emerald-900 border border-white/15 rounded-xl px-4 pb-2.5 pt-5">
+            <div className="bg-sky-900 border border-white/15 rounded-xl px-4 pb-2.5 pt-5">
               <div className="flex items-center justify-between gap-3">
-
-                {/* Date block */}
                 <div className="text-center flex-shrink-0">
-                  <p className="text-yellow-300 font-bold text-[10px] uppercase tracking-wider">Sat</p>
+                  <p className="text-yellow-300 font-bold text-[10px] uppercase tracking-wider">{EVENT.date.weekday}</p>
                   <p className="font-condensed font-bold text-white leading-none">
-                    <span className="text-3xl">08</span><span className="text-base align-top">th</span>
+                    <span className="text-3xl">{EVENT.date.day}</span><span className="text-base align-top">{EVENT.date.daySuffix}</span>
                   </p>
-                  <p className="font-condensed font-bold text-yellow-300 text-sm leading-tight">AUG 2026</p>
+                  <p className="font-condensed font-bold text-yellow-300 text-sm leading-tight">{EVENT.date.monthYear}</p>
                 </div>
 
-                {/* Vertical divider */}
                 <div className="w-px self-stretch bg-gradient-to-b from-transparent via-yellow-400/40 to-transparent flex-shrink-0" />
 
-                {/* Venue */}
                 <div className="text-center flex-1">
-                  <p className="font-condensed font-bold text-white text-lg">AKUAPEM RIDGE</p>
-                  <p className="text-white/70 font-bold text-xs uppercase tracking-wider -mt-0.5">Start & Finish: Akropong</p>
+                  <p className="font-condensed font-bold text-white text-lg uppercase">{EVENT.city}</p>
+                  <p className="text-white/70 font-bold text-[11px] uppercase tracking-wider -mt-0.5">Start & Finish · Wellness Village</p>
+                  <p className="text-white/60 text-[11px] mt-0.5">{EVENT.venue}</p>
                 </div>
-
-                {/* Vertical divider */}
-                <div className="w-px self-stretch bg-gradient-to-b from-transparent via-red-500/40 to-transparent flex-shrink-0" />
-
-                {/* Time */}
-                <div className="text-center flex-shrink-0">
-                  <p className="text-white/50 text-[10px] font-bold uppercase tracking-wider">First Gun</p>
-                  <p className="text-white font-condensed font-bold text-base leading-tight">6:00 AM</p>
-                </div>
-
               </div>
             </div>
           </div>
 
-          {/* ═══════ PARTICIPATION PACKAGES ═══════ */}
+          {/* ═══════ REGISTRATION PACKAGES (live) ═══════ */}
           <div className="mb-5 slide-up" style={{ animationDelay: "0.26s" }}>
-            <p className="text-yellow-300 font-condensed font-bold text-sm uppercase tracking-widest text-center mb-2">Registration Packages</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {RACE_PACKAGES.map((pkg) => (
-                <div key={pkg.id} className="bg-white/10 border border-white/20 rounded-xl p-3.5 text-center flex flex-col">
-                  <p className="text-white/60 text-[10px] font-bold uppercase tracking-wider">{pkg.name}</p>
-                  <p className="font-condensed font-bold text-white text-xl mt-1">
-                    {pkg.price.toLocaleString()}<span className="text-xs text-white/50"> {pkg.currency}</span>
+            <SectionTitle>Registration</SectionTitle>
+            {packagesLoading ? (
+              <p className="text-white/60 text-xs text-center py-4">Loading categories…</p>
+            ) : packages.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {packages.map((pkg) => (
+                  <div key={pkg.id} className={`${cardCls} text-center flex flex-col`}>
+                    <p className="text-white/70 text-[11px] font-bold uppercase tracking-wider">{pkg.name}</p>
+                    <p className="font-condensed font-bold text-white text-2xl mt-1">{renderPrice(pkg.price)}</p>
+                    {pkg.merchandise.length > 0 && (
+                      <div className="flex flex-wrap justify-center gap-1 mt-2">
+                        {pkg.merchandise.map((item) => (
+                          <span key={item.id} className="bg-white/10 border border-white/10 text-white/75 text-[10px] font-bold rounded-full px-2 py-0.5">
+                            {item.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {pkg.benefits && <p className="text-white/60 text-[11px] mt-2 leading-snug">{pkg.benefits}</p>}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-white/60 text-xs text-center">
+                Registration opens {EVENT.registrationOpens}. Categories and prices will appear here.
+              </p>
+            )}
+            <p className="text-white/70 text-xs text-center mt-2.5 leading-relaxed">🏢 {CORPORATE_TEAM_NOTE}</p>
+          </div>
+
+          {/* ═══════ WHAT YOU GET ═══════ */}
+          <div className="mb-5 slide-up" style={{ animationDelay: "0.30s" }}>
+            <SectionTitle>Every Registrant Gets</SectionTitle>
+            <ul className={`${cardCls} grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1.5`}>
+              {REGISTRATION_INCLUDES.map((item) => (
+                <li key={item} className="text-white/85 text-xs font-semibold flex gap-1.5">
+                  <span className="text-yellow-300">✓</span>{item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* ═══════ REWARDS (from package prizes) ═══════ */}
+          <div className="mb-5 slide-up" style={{ animationDelay: "0.34s" }}>
+            <SectionTitle>Rewards</SectionTitle>
+            <div className={`${cardCls} text-center`}>
+              {prizePackages.map((pkg) => (
+                <div key={pkg.id} className="mb-2.5">
+                  <p className="text-white/70 text-[11px] font-bold uppercase tracking-wider mb-1">{pkg.name}</p>
+                  <p className="text-yellow-300 text-sm font-bold">
+                    {[...pkg.prizes]
+                      .sort((a, b) => (a.position ?? 99) - (b.position ?? 99))
+                      .map((prize) => `${prizeMedal(prize.position)} ${prize.amount ? renderPrice(prize.amount) : prize.name}`)
+                      .join('  ·  ')}
                   </p>
-                  <div className="flex flex-wrap justify-center gap-1 mt-2">
-                    {pkg.merchandise.map((item) => (
-                      <span key={item} className="bg-white/10 border border-white/10 text-white/70 text-[9px] font-bold rounded-full px-2 py-0.5">
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                  <p className="text-white/50 text-[10px] mt-2 leading-snug">{pkg.benefits.join(' · ')}</p>
-                  <div className="mt-auto pt-2.5">
-                    <div className="border-t border-white/10 pt-2">
-                      {pkg.prizes.length > 0 && (
-                        <p className="text-yellow-300 text-[10px] font-bold mb-0.5">
-                          {pkg.prizes.map((p) => `${prizeMedal(p.position)} ${p.reward}`).join(' · ')}
-                        </p>
-                      )}
-                      <p className="text-white/50 text-[9px] leading-snug">{pkg.prizeNote}</p>
-                    </div>
-                  </div>
+                  {pkg.prizes.some((prize) => prize.description) && (
+                    <p className="text-white/55 text-[11px] mt-0.5">
+                      {pkg.prizes.find((prize) => prize.description)?.description}
+                    </p>
+                  )}
                 </div>
               ))}
-            </div>
-            <p className="text-white/60 text-xs text-center mt-2.5 leading-relaxed">
-              Winners are decided by completion time — cash prizes for the 21km Half Marathon, and every finisher takes home a medal.
-            </p>
-          </div>
-
-          {/* ═══════ PARTNERS & SPONSORS ═══════ */}
-          <div className="slide-up" style={{ animationDelay: "0.32s" }}>
-            <div className="flex items-center gap-3 mb-2.5">
-              <p className="text-white font-bold text-[10px] uppercase tracking-[0.25em] shrink-0">Partners</p>
-              <div className="h-px flex-1 bg-white/25" />
-            </div>
-            <div className="flex items-center justify-center gap-2 flex-wrap mb-3">
-              <span className="bg-white/10 border border-white/15 rounded-full px-3 py-1 text-white/85 text-[10px] font-bold uppercase tracking-wider">Lyf Arena</span>
-              <span className="bg-white/10 border border-white/15 rounded-full px-3 py-1 text-white/85 text-[10px] font-bold uppercase tracking-wider">Lyf Festival 2026</span>
-              {/* <span className="bg-white/10 border border-white/15 rounded-full px-3 py-1 text-white/85 text-[10px] font-bold uppercase tracking-wider">Akuapem Odwira · 200 Years</span> */}
-            </div>
-
-            <div className="bg-white rounded-xl overflow-hidden shadow-lg">
-              <div className="px-4 py-3 text-center">
-                <p className="text-[9px] font-extrabold uppercase tracking-widest text-gray-500 mb-1">Headline Sponsor</p>
-                <p className="font-extrabold text-xl sm:text-2xl leading-none" style={{ color: "#5B2EAE" }}>mojopay.</p>
-              </div>
-              <div className="h-px bg-gray-200" />
-              <div className="px-4 py-2 text-center">
-                <p className="text-[9px] font-extrabold uppercase tracking-widest text-gray-500 mb-1">Sponsors</p>
-                <div className="flex items-center justify-center gap-3 sm:gap-4">
-                  <span className="font-condensed font-bold text-gray-900 tracking-[0.15em] text-lg sm:text-xl leading-none">CAVEMAN</span>
-                  <img src="/odwira_logo.png" alt="Akuapem Odwira 200 Years" className="h-16 sm:h-20 w-auto object-contain" />
-                  <img src="/luckiest_logo.png" alt="The Luckiest" className="h-16 sm:h-20 w-auto object-contain" />
-                </div>
-              </div>
+              <p className="text-white/70 text-xs leading-relaxed">
+                Top finishers in each race category are recognized at the awards ceremony, and every finisher takes home a medal.
+              </p>
             </div>
           </div>
 
-          {/* ═══════ CONTACT ═══════ */}
-          <p className="text-white/50 text-xs text-center mt-4">
-            For more info: Call Chris on 0245562676
-          </p>
+          {/* ═══════ ROUTE & HYDRATION ═══════ */}
+          <div className="mb-5 slide-up" style={{ animationDelay: "0.38s" }}>
+            <SectionTitle>Route & Hydration</SectionTitle>
+            <div className={`${cardCls} space-y-2`}>
+              <p className="text-white/85 text-xs leading-relaxed"><span className="mr-1">🌊</span>{EVENT_ROUTE}</p>
+              <p className="text-white/85 text-xs leading-relaxed"><span className="mr-1">💧</span>{EVENT_HYDRATION}</p>
+            </div>
+          </div>
+
+          {/* ═══════ WELLNESS VILLAGE ═══════ */}
+          <div className="mb-5 slide-up" style={{ animationDelay: "0.42s" }}>
+            <SectionTitle>Post-Race Wellness Village</SectionTitle>
+            <ul className={`${cardCls} space-y-1.5`}>
+              {WELLNESS_VILLAGE.map((item) => (
+                <li key={item} className="text-white/85 text-xs font-semibold flex gap-1.5">
+                  <span className="text-yellow-300">•</span>{item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* ═══════ VEST SIZE GUIDE ═══════ */}
+          <div className="slide-up" style={{ animationDelay: "0.46s" }}>
+            <SectionTitle>Race Vest Size Guide</SectionTitle>
+            <div className={cardCls}>
+              <VestSizeTable tone="dark" />
+            </div>
+          </div>
 
         </div>
 
-        {/* Ridge silhouette */}
+        {/* Shoreline */}
         <div className="relative h-10 -mt-2 pointer-events-none">
           <svg viewBox="0 0 400 40" preserveAspectRatio="none" className="absolute inset-0 w-full h-full opacity-40">
-            <path d="M0 40 L0 28 L40 14 L80 24 L130 6 L180 20 L230 10 L280 24 L330 12 L370 22 L400 16 L400 40 Z" fill="#065f46" />
-            <path d="M0 40 L0 34 L50 22 L100 30 L160 16 L220 28 L270 18 L330 30 L400 24 L400 40 Z" fill="#064e3b" />
+            <path d="M0 40 L0 22 Q50 8 100 22 T200 22 T300 22 T400 22 L400 40 Z" fill="#155e75" />
+            <path d="M0 40 L0 30 Q50 18 100 30 T200 30 T300 30 T400 30 L400 40 Z" fill="#0c4a6e" />
           </svg>
         </div>
 
         {/* Bottom strip */}
-        <div className="h-2 bg-gradient-to-r from-yellow-400 via-emerald-400 to-yellow-400" />
+        <div className="h-2 bg-gradient-to-r from-yellow-400 via-cyan-400 to-yellow-400" />
       </div>
     </div>
   );
