@@ -3,7 +3,23 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ApiDomainError } from '@rabstack/rab-react-sdk';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BedDouble,
+  Bus,
+  CalendarDays,
+  Check,
+  Droplets,
+  HeartPulse,
+  Loader2,
+  MapPin,
+  Trophy,
+  Waves,
+} from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import heroPhoto from '../../assets/runners-hero.jpg';
+import closingPhoto from '../../assets/runners-women.jpg';
 import { normalizeGhPhone, ghPhoneError, isValidGhPhone, toGhIntlPhone } from '../utils';
 import { VestSizeTable } from '../components/VestSizeGuide';
 import { describeAddOn, WEEKEND_BUNDLES } from '../lib/weekendPackage';
@@ -19,30 +35,26 @@ import {
 
 type Step = 'phone' | 'otp' | 'signup';
 
-const prizeMedal = (position?: number | null) =>
-  position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : '🏅';
+const ordinal = (position?: number | null) => {
+  if (!position) return '—';
+  const suffix = position === 1 ? 'st' : position === 2 ? 'nd' : position === 3 ? 'rd' : 'th';
+  return `${position}${suffix}`;
+};
 
-const confettiDot = (color: string, size: string, top: string, left: string, delay: string) => (
-  <div
-    key={`${top}-${left}-${color}`}
-    className="absolute rounded-full animate-pulse"
-    style={{ backgroundColor: color, width: size, height: size, top, left, animationDelay: delay, animationDuration: "2.5s" }}
-  />
+// Page palette: warm paper, near-black ink, one coral accent.
+const inputCls =
+  "w-full h-12 bg-[#f6f5f1] text-[#0e1116] text-[15px] font-medium px-4 rounded-xl border border-[#e6e3dc] outline-none placeholder:text-[#a3a09a] transition focus:bg-white focus:border-[#0e1116] focus:ring-4 focus:ring-[#ff5a2c]/10";
+const labelCls = "block text-[13px] font-medium text-[#0e1116] mb-1.5";
+const primaryBtnCls =
+  "w-full h-12 rounded-full bg-[#0e1116] text-white text-[15px] font-semibold inline-flex items-center justify-center gap-2 transition hover:bg-[#ff5a2c] active:scale-[0.99] disabled:opacity-35 disabled:hover:bg-[#0e1116] disabled:cursor-not-allowed";
+
+const SectionHeading = ({ eyebrow, title, children }: { eyebrow: string; title: string; children?: React.ReactNode }) => (
+  <div className="max-w-2xl mb-10">
+    <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[#ff5a2c] mb-3">{eyebrow}</p>
+    <h2 className="wcr-display text-3xl md:text-[2.75rem] leading-[1.05] font-semibold tracking-tight text-[#0e1116]">{title}</h2>
+    {children && <p className="text-[#5b6069] text-base md:text-lg mt-4 leading-relaxed">{children}</p>}
+  </div>
 );
-
-// Running silhouette (Material "directions run")
-const runnerIcon = (color: string) => (
-  <svg viewBox="0 0 24 24" className="w-full h-full" fill={color}>
-    <path d="M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9l1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1l-5.2 2.2v4.7h2v-3.4l1.8-.7-1.6 8.1-4.9-1-.4 2 7 1.4z" />
-  </svg>
-);
-
-// Section heading used down the flyer
-const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <p className="text-amber-300 font-condensed font-bold text-sm uppercase tracking-widest text-center mb-2">{children}</p>
-);
-
-const cardCls = "bg-white/10 border border-white/20 rounded-xl p-3.5";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -253,530 +265,497 @@ export default function LandingPage() {
   const { data: addOnsData } = useAkMarathonQuery('listAddOns', { refetchOnWindowFocus: false });
   const addOns = addOnsData ?? [];
 
+  const resetToPhone = () => {
+    setStep('phone');
+    setOtpCode(['', '', '', '', '', '']);
+    setOtpError(null);
+  };
+
   return (
-    <div className="min-h-screen bg-[#03131f] flex items-center justify-center md:p-8">
+    <div className="wcr min-h-screen bg-[#f6f5f1] text-[#0e1116] antialiased">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,600;1,700;1,800&family=Nunito:wght@400;600;700;800;900&display=swap');
-        .font-condensed { font-family: 'Barlow Condensed', sans-serif; }
-        * { font-family: 'Nunito', sans-serif; }
-        @keyframes slideUp { 0% { transform: translateY(20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-        @keyframes ticketBounce { 0%, 100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-6px) rotate(-5deg); } 75% { transform: translateY(-3px) rotate(5deg); } }
-        @keyframes waveDrift { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-4%); } }
-        @keyframes runAcross { 0% { left: -14%; } 100% { left: 106%; } }
-        @keyframes runBob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-4px) rotate(4deg); } }
-        .slide-up { animation: slideUp 0.5s ease-out both; }
-        .ticket-bounce { animation: ticketBounce 2s ease-in-out infinite; }
-        .wave-drift { animation: waveDrift 9s ease-in-out infinite; }
-        .runner { position: absolute; animation-name: runAcross; animation-timing-function: linear; animation-iteration-count: infinite; }
-        .runner-bob { animation: runBob 0.5s ease-in-out infinite; }
-        @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
-        .shimmer-text {
-          background: linear-gradient(90deg, #FDE047 0%, #FBBF24 25%, #FDE047 50%, #F59E0B 75%, #FDE047 100%);
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: shimmer 3s linear infinite;
-        }
-        .flyer-shadow {
-          box-shadow: 0 25px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.1);
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+        .wcr, .wcr input, .wcr button { font-family: 'Inter', system-ui, sans-serif; }
+        .wcr-display { font-family: 'Inter Tight', 'Inter', system-ui, sans-serif; }
+        @keyframes wcrRise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+        .wcr-rise { animation: wcrRise 0.6s cubic-bezier(.2,.7,.2,1) both; }
+        @keyframes wcrZoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+        .wcr-zoom { animation: wcrZoom 2.4s cubic-bezier(.2,.7,.2,1) both; }
+        @media (prefers-reduced-motion: reduce) { .wcr-rise, .wcr-zoom { animation: none; } }
       `}</style>
 
-      <div className="relative w-full max-w-lg bg-gradient-to-b from-sky-950 via-cyan-900 to-sky-950 sm:rounded-3xl overflow-hidden flyer-shadow">
-
-        {/* Sunrise over the Gulf of Guinea */}
-        <div className="absolute top-0 inset-x-0 h-72 pointer-events-none" style={{ background: "radial-gradient(ellipse 90% 60% at 50% -10%, rgba(251,191,36,0.25), transparent 65%)" }} />
-
-        {/* Watermark swells */}
-        <div className="absolute inset-x-0 top-40 h-40 pointer-events-none opacity-[0.10] wave-drift">
-          <svg viewBox="0 0 400 80" preserveAspectRatio="none" className="w-[110%] h-full">
-            <path d="M0 40 Q50 10 100 40 T200 40 T300 40 T400 40 L400 80 L0 80 Z" fill="#67e8f9" />
-          </svg>
+      {/* ═══════ NAV ═══════ */}
+      <header className="sticky top-0 z-30 bg-[#0e1116]/85 backdrop-blur-md border-b border-white/10 text-white">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
+          <a href="#top" className="flex items-center gap-2.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#ff5a2c]" />
+            <span className="wcr-display font-semibold tracking-tight text-[15px]">{EVENT.name}</span>
+          </a>
+          <nav className="flex items-center gap-1 sm:gap-2 text-sm">
+            <a href="#pricing" className="hidden sm:inline-flex px-3 py-2 text-white/65 hover:text-white transition">Pricing</a>
+            <a href="#race-day" className="hidden sm:inline-flex px-3 py-2 text-white/65 hover:text-white transition">Race day</a>
+            <button
+              onClick={() => navigate('/login')}
+              className="px-3 py-2 text-white/65 hover:text-white transition"
+            >
+              Staff login
+            </button>
+            <a
+              href="#register"
+              className="ml-1 inline-flex items-center h-9 px-4 rounded-full bg-[#ff5a2c] text-white font-medium hover:bg-white hover:text-[#0e1116] transition"
+            >
+              Register
+            </a>
+          </nav>
         </div>
+      </header>
 
-        {/* Confetti */}
-        {confettiDot("#FDE047", "8px", "3%", "15%", "0s")}
-        {confettiDot("#FB923C", "6px", "8%", "85%", "0.5s")}
-        {confettiDot("#67E8F9", "10px", "18%", "92%", "1s")}
-        {confettiDot("#FDE047", "7px", "55%", "4%", "1.5s")}
-        {confettiDot("#FB923C", "9px", "65%", "93%", "0.3s")}
-        {confettiDot("#22D3EE", "6px", "42%", "3%", "0.8s")}
-        {confettiDot("#FDE047", "5px", "80%", "7%", "1.2s")}
-        {confettiDot("#FB923C", "7px", "88%", "91%", "0.6s")}
-        {confettiDot("#FDE047", "6px", "12%", "6%", "0.2s")}
-        {confettiDot("#67E8F9", "7px", "48%", "94%", "0.4s")}
+      {/* ═══════ HERO + REGISTRATION ═══════ */}
+      <section id="top" className="relative overflow-hidden bg-[#0e1116] text-white">
+        <img
+          src={heroPhoto}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover object-[60%_center] wcr-zoom"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0e1116]/90 via-[#0e1116]/65 to-[#0e1116]/30" />
+        <div className="absolute inset-0 bg-[#0e1116]/35 lg:hidden" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#0e1116]/80 to-transparent" />
 
-        {/* Runners along the coast road */}
-        <div className="absolute bottom-16 inset-x-0 h-10 pointer-events-none z-0">
-          <div className="runner w-9 h-9 opacity-50" style={{ animationDuration: "11s", animationDelay: "-2s" }}>
-            <div className="runner-bob w-full h-full">{runnerIcon("#FDE047")}</div>
-          </div>
-          <div className="runner w-6 h-6 opacity-40" style={{ animationDuration: "15s", animationDelay: "-9s", top: "10px" }}>
-            <div className="runner-bob w-full h-full" style={{ animationDelay: "0.15s" }}>{runnerIcon("#ffffff")}</div>
-          </div>
-          <div className="runner w-7 h-7 opacity-45" style={{ animationDuration: "13s", animationDelay: "-6s", top: "4px" }}>
-            <div className="runner-bob w-full h-full" style={{ animationDelay: "0.3s" }}>{runnerIcon("#FB923C")}</div>
-          </div>
-        </div>
+        <div className="relative max-w-6xl mx-auto px-5 md:px-8 pt-14 pb-16 md:pt-24 md:pb-28 grid lg:grid-cols-[1.15fr_0.85fr] gap-12 lg:gap-16 items-start">
+          <div className="wcr-rise lg:pt-6">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur px-3 py-1 text-[13px] font-medium text-white/85">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#ff5a2c]" />
+              {EVENT.edition} · {EVENT.year}
+            </span>
 
-        <div className="relative z-10 px-6 pt-8 pb-6">
-
-          {/* ═══════ HEADER ═══════ */}
-          <div className="relative text-center mb-4 slide-up">
-            <p className="text-white/90 text-[11px] font-extrabold uppercase tracking-[0.35em] mb-1.5">The {EVENT.edition}</p>
-            <h1 className="font-condensed italic font-extrabold uppercase leading-[0.88] relative z-10">
-              <span className="block text-5xl md:text-6xl text-white" style={{ textShadow: "2px 3px 0 rgba(0,0,0,0.3)" }}>Western City</span>
-              <span className="block text-6xl md:text-7xl shimmer-text" style={{ textShadow: "2px 3px 0 rgba(0,0,0,0.2)" }}>Run</span>
+            <h1 className="wcr-display mt-6 text-[3.5rem] leading-[0.95] sm:text-7xl lg:text-[5.75rem] font-semibold tracking-[-0.035em]">
+              Western City<br />Run<span className="text-[#ff5a2c]">.</span>
             </h1>
-            <p className="text-white/80 font-bold text-sm mt-2 tracking-wide relative z-10 max-w-xs mx-auto">
-              {EVENT.tagline}
-            </p>
-          </div>
 
-          {/* ═══════ CATEGORY CHIPS ═══════ */}
-          <div className="flex justify-center flex-wrap gap-1.5 mb-5 slide-up" style={{ animationDelay: "0.08s" }}>
-            {EVENT_CATEGORIES.map((category) => (
-              <span key={category} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1 text-white text-[11px] font-bold uppercase tracking-wider">
-                {category}
-              </span>
-            ))}
-          </div>
+            <p className="mt-6 max-w-md text-lg text-white/75 leading-relaxed">{EVENT.tagline}.</p>
 
-          {/* ═══════ LOGIN ═══════ */}
-          <div className="relative mb-5 slide-up" style={{ animationDelay: "0.14s" }}>
-            <div className="relative">
-              <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full z-20" style={{ background: "linear-gradient(135deg, #155e75, #0c4a6e)" }} />
-              <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full z-20" style={{ background: "linear-gradient(135deg, #155e75, #0c4a6e)" }} />
-
-              <div className="bg-sky-900 border border-white/15 rounded-2xl p-5 md:p-6 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-
-                {/* Step 1: Phone */}
-                {step === 'phone' && (
-                  <>
-                    <div className="text-center mb-4">
-                      <span className="text-3xl mb-1.5 block ticket-bounce" role="img" aria-label="runner">🏃🏾</span>
-                      <h2 className="font-condensed font-bold text-white text-xl">Join the Race</h2>
-                      <p className="text-white/70 text-sm mt-0.5">Enter your phone number to register</p>
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-white/80 text-xs font-bold uppercase tracking-wider mb-1.5">Phone Number</label>
-                      <div className={`relative rounded-xl overflow-hidden transition-all duration-300 ${focused ? "ring-2 ring-yellow-400/50 shadow-lg shadow-yellow-400/10" : ""}`}>
-                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pointer-events-none">
-                          <span className="text-sm" role="img" aria-label="Ghana flag">🇬🇭</span>
-                          <span className="text-white/70 text-xs font-semibold">+233</span>
-                          <span className="text-white/30 text-base font-light">|</span>
-                        </div>
-                        <input
-                          ref={inputRef}
-                          type="tel"
-                          inputMode="numeric"
-                          value={formatDisplay(phone)}
-                          onChange={handlePhoneChange}
-                          onFocus={() => setFocused(true)}
-                          onBlur={() => setFocused(false)}
-                          onKeyDown={(e) => e.key === "Enter" && handleSendOTP()}
-                          placeholder="XXX XXX XXX"
-                          className="w-full bg-white/8 text-white text-base font-semibold pl-24 pr-4 py-3 outline-none placeholder-white/30 tracking-widest rounded-xl"
-                          autoFocus
-                        />
-                      </div>
-                      <div className="flex items-center justify-between mt-1.5 px-0.5">
-                        <p className="text-white/50 text-xs">Enter 9 digits without leading 0</p>
-                        <span className={`text-xs font-bold transition-colors ${isValidGhPhone(phone) ? "text-green-300" : "text-white/40"}`}>{phone.length}/9</span>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleSendOTP}
-                      disabled={sendOtp.isPending || !isValidGhPhone(phone)}
-                      className={`w-full py-3 rounded-xl font-condensed font-bold text-base tracking-wide transition-all duration-300 relative overflow-hidden group
-                        ${isValidGhPhone(phone)
-                          ? "bg-gradient-to-r from-yellow-400 to-amber-500 text-sky-950 shadow-lg shadow-yellow-500/25 hover:shadow-xl hover:shadow-yellow-500/40 hover:scale-[1.02] active:scale-[0.98]"
-                          : "bg-white/6 text-white/20 cursor-not-allowed"
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      {sendOtp.isPending ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                          Sending...
-                        </span>
-                      ) : (
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                          Continue
-                          <span className={`transition-transform duration-300 inline-block ${isValidGhPhone(phone) ? "group-hover:translate-x-1" : ""}`}>→</span>
-                        </span>
-                      )}
-                    </button>
-                  </>
-                )}
-
-                {/* Step 2: OTP */}
-                {step === 'otp' && (
-                  <>
-                    <div className="text-center mb-4">
-                      <span className="text-3xl mb-1.5 block" role="img" aria-label="shield">🔐</span>
-                      <h2 className="font-condensed font-bold text-white text-xl">Verify Your Number</h2>
-                      <p className="text-white/70 text-sm mt-0.5">
-                        Code sent to <span className="text-white/90 font-semibold">+{formatPhone(phone)}</span>
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => { setStep('phone'); setOtpCode(['', '', '', '', '', '']); setOtpError(null); }}
-                        className="text-yellow-300 text-xs font-bold mt-1 hover:underline underline-offset-2"
-                      >
-                        Change number
-                      </button>
-                    </div>
-
-                    <div className="flex gap-2 justify-center mb-4" onPaste={handleOtpPaste}>
-                      {otpCode.map((digit, i) => (
-                        <input
-                          key={i}
-                          ref={(el) => { otpRefs.current[i] = el; }}
-                          type="text"
-                          inputMode="numeric"
-                          maxLength={1}
-                          value={digit}
-                          onChange={(e) => handleOtpInput(i, e.target.value)}
-                          onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                          autoFocus={i === 0}
-                          className={`w-11 h-13 text-center text-xl font-bold rounded-xl border-2 bg-white/8 text-white outline-none transition-all ${
-                            otpError
-                              ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-400/30'
-                              : digit
-                                ? 'border-yellow-400/50 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20'
-                                : 'border-white/15 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20'
-                          }`}
-                        />
-                      ))}
-                    </div>
-
-                    {otpError && (
-                      <p className="text-red-300 text-xs text-center mb-3 font-semibold">{otpError}</p>
-                    )}
-
-                    <button
-                      onClick={handleVerifyOTP}
-                      disabled={login.isPending || otpCode.join('').length < 4}
-                      className="w-full py-3 rounded-xl font-condensed font-bold text-base tracking-wide transition-all duration-300 bg-gradient-to-r from-yellow-400 to-amber-500 text-sky-950 shadow-lg shadow-yellow-500/25 hover:shadow-xl hover:shadow-yellow-500/40 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                    >
-                      {login.isPending ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                          Verifying...
-                        </span>
-                      ) : (
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                          Verify & Continue →
-                        </span>
-                      )}
-                    </button>
-
-                    <div className="text-center mt-3">
-                      <button
-                        type="button"
-                        onClick={handleResendOTP}
-                        disabled={resendCountdown > 0 || sendOtp.isPending}
-                        className="text-white/60 text-xs font-semibold hover:text-white/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        {resendCountdown > 0
-                          ? `Resend in ${resendCountdown}s`
-                          : sendOtp.isPending
-                            ? 'Sending...'
-                            : "Didn't receive? Resend OTP"}
-                      </button>
-                    </div>
-                  </>
-                )}
-
-                {/* Step 3: Signup */}
-                {step === 'signup' && (
-                  <form onSubmit={handleSignup}>
-                    <div className="text-center mb-4">
-                      <span className="text-3xl mb-1.5 block" role="img" aria-label="wave">👋</span>
-                      <h2 className="font-condensed font-bold text-white text-xl">Complete Your Profile</h2>
-                      <p className="text-white/70 text-sm mt-0.5">One more step and you're on the start line</p>
-                    </div>
-
-                    <div className="bg-white/8 border border-white/10 rounded-xl px-4 py-2.5 mb-4">
-                      <p className="text-white/60 text-xs">Verified number</p>
-                      <p className="text-white font-semibold text-sm">+{formatPhone(phone)}</p>
-                    </div>
-
-                    <div className="mb-3 grid grid-cols-2 gap-2.5">
-                      <div>
-                        <label className="block text-white/80 text-xs font-bold uppercase tracking-wider mb-1.5">First Name</label>
-                        <input
-                          type="text"
-                          value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
-                          placeholder="John"
-                          autoFocus
-                          className="w-full bg-white/8 text-white text-base font-semibold px-4 py-3 outline-none placeholder-white/30 rounded-xl border border-white/10 focus:ring-2 focus:ring-yellow-400/50 transition-all"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-white/80 text-xs font-bold uppercase tracking-wider mb-1.5">Last Name</label>
-                        <input
-                          type="text"
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
-                          placeholder="Doe"
-                          className="w-full bg-white/8 text-white text-base font-semibold px-4 py-3 outline-none placeholder-white/30 rounded-xl border border-white/10 focus:ring-2 focus:ring-yellow-400/50 transition-all"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mb-3">
-                      <label className="block text-white/80 text-xs font-bold uppercase tracking-wider mb-1.5">
-                        Email Address <span className="text-white/40 normal-case font-semibold">(optional)</span>
-                      </label>
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="you@example.com"
-                        className="w-full bg-white/8 text-white text-base font-semibold px-4 py-3 outline-none placeholder-white/30 rounded-xl border border-white/10 focus:ring-2 focus:ring-yellow-400/50 transition-all"
-                      />
-                    </div>
-
-                    <div className="mb-3">
-                      <label className="block text-white/80 text-xs font-bold uppercase tracking-wider mb-1.5">
-                        Location <span className="text-white/40 normal-case font-semibold">(optional)</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        placeholder="e.g. Takoradi"
-                        className="w-full bg-white/8 text-white text-base font-semibold px-4 py-3 outline-none placeholder-white/30 rounded-xl border border-white/10 focus:ring-2 focus:ring-yellow-400/50 transition-all"
-                      />
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-white/80 text-xs font-bold uppercase tracking-wider mb-1.5">Ghana Card Number</label>
-                      <input
-                        type="text"
-                        value={ghanaCard}
-                        onChange={handleGhanaCardChange}
-                        placeholder="GHA-XXXXXXXXX-X"
-                        className="w-full bg-white/8 text-white text-base font-semibold px-4 py-3 outline-none placeholder-white/30 rounded-xl border border-white/10 focus:ring-2 focus:ring-yellow-400/50 transition-all tracking-wider"
-                      />
-                      <p className="text-white/50 text-xs mt-1.5 px-0.5">Format: GHA-XXXXXXXXX-X</p>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={register.isPending || !firstName.trim() || firstName.length < 2 || !lastName.trim() || lastName.length < 2 || !ghanaCard.trim()}
-                      className="w-full py-3 rounded-xl font-condensed font-bold text-base tracking-wide transition-all duration-300 bg-gradient-to-r from-yellow-400 to-amber-500 text-sky-950 shadow-lg shadow-yellow-500/25 hover:shadow-xl hover:shadow-yellow-500/40 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                    >
-                      {register.isPending ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                          Creating account...
-                        </span>
-                      ) : (
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                          Create Account →
-                        </span>
-                      )}
-                    </button>
-                  </form>
-                )}
+            <dl className="mt-10 grid sm:grid-cols-2 gap-6 max-w-lg">
+              <div className="flex gap-3">
+                <CalendarDays className="w-5 h-5 mt-0.5 text-[#ff5a2c] shrink-0" strokeWidth={1.75} />
+                <div>
+                  <dt className="text-[13px] text-white/55">Race day</dt>
+                  <dd className="font-medium">{EVENT.date.long}</dd>
+                </div>
               </div>
-            </div>
+              <div className="flex gap-3">
+                <MapPin className="w-5 h-5 mt-0.5 text-[#ff5a2c] shrink-0" strokeWidth={1.75} />
+                <div>
+                  <dt className="text-[13px] text-white/55">Start & finish</dt>
+                  <dd className="font-medium">{EVENT.city}</dd>
+                  <dd className="text-sm text-white/70">{EVENT.venue}</dd>
+                </div>
+              </div>
+            </dl>
 
-            {/* Staff Login */}
-            <div className="text-center mt-4">
-              <button
-                onClick={() => navigate('/login')}
-                className="text-white/70 text-sm font-bold hover:text-white transition-colors underline underline-offset-4"
-              >
-                Staff Login →
-              </button>
+            <div className="mt-10 flex flex-wrap gap-2">
+              {EVENT_CATEGORIES.map((category) => (
+                <span key={category} className="rounded-full border border-white/25 bg-white/5 backdrop-blur px-3.5 py-1.5 text-sm font-medium">
+                  {category}
+                </span>
+              ))}
             </div>
           </div>
 
-          {/* ═══════ DATE / VENUE ═══════ */}
-          <div className="mb-5 slide-up" style={{ animationDelay: "0.20s" }}>
-            <div className="flex justify-center relative z-10 -mb-3">
-              <span className="bg-gradient-to-r from-yellow-400 to-amber-500 text-sky-950 font-condensed italic font-bold uppercase tracking-widest text-sm px-5 py-1 rounded-lg shadow-lg">
-                Race Day
-              </span>
-            </div>
-            <div className="bg-sky-900 border border-white/15 rounded-xl px-4 pb-2.5 pt-5">
-              <div className="flex items-center justify-between gap-3">
-                <div className="text-center flex-shrink-0">
-                  <p className="text-yellow-300 font-bold text-[10px] uppercase tracking-wider">{EVENT.date.weekday}</p>
-                  <p className="font-condensed font-bold text-white leading-none">
-                    <span className="text-3xl">{EVENT.date.day}</span><span className="text-base align-top">{EVENT.date.daySuffix}</span>
+          {/* Registration card */}
+          <div id="register" className="wcr-rise scroll-mt-24" style={{ animationDelay: "0.1s" }}>
+            <div className="bg-white text-[#0e1116] rounded-3xl p-6 sm:p-8 shadow-[0_32px_64px_-24px_rgba(0,0,0,0.55)]">
+
+              {/* Step indicator */}
+              <div className="flex gap-1.5 mb-7" aria-hidden="true">
+                {(['phone', 'otp', 'signup'] as Step[]).map((s, i) => (
+                  <span
+                    key={s}
+                    className={`h-1 flex-1 rounded-full transition-colors ${
+                      ['phone', 'otp', 'signup'].indexOf(step) >= i ? 'bg-[#ff5a2c]' : 'bg-[#eeece6]'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Step 1: Phone */}
+              {step === 'phone' && (
+                <>
+                  <h2 className="wcr-display text-2xl font-semibold tracking-tight">Join the race</h2>
+                  <p className="text-[#5b6069] mt-1.5 mb-6">Register or sign in with your phone number.</p>
+
+                  <label htmlFor="wcr-phone" className={labelCls}>Phone number</label>
+                  <div className={`flex items-center h-12 rounded-xl border bg-[#f6f5f1] transition ${
+                    focused ? 'bg-white border-[#0e1116] ring-4 ring-[#ff5a2c]/10' : 'border-[#e6e3dc]'
+                  }`}>
+                    <span className="pl-4 pr-3 text-[15px] font-medium text-[#5b6069] border-r border-[#e6e3dc] select-none">
+                      +233
+                    </span>
+                    <input
+                      id="wcr-phone"
+                      ref={inputRef}
+                      type="tel"
+                      inputMode="numeric"
+                      autoComplete="tel-national"
+                      value={formatDisplay(phone)}
+                      onChange={handlePhoneChange}
+                      onFocus={() => setFocused(true)}
+                      onBlur={() => setFocused(false)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSendOTP()}
+                      placeholder="241 234 567"
+                      className="flex-1 min-w-0 h-full bg-transparent px-3 text-[15px] font-medium tracking-wide outline-none placeholder:text-[#a3a09a]"
+                    />
+                    <span className={`pr-4 text-xs tabular-nums font-medium ${isValidGhPhone(phone) ? 'text-emerald-600' : 'text-[#a3a09a]'}`}>
+                      {phone.length}/9
+                    </span>
+                  </div>
+                  <p className="text-[13px] text-[#8a8d93] mt-2">9 digits, without the leading 0.</p>
+
+                  <button
+                    onClick={handleSendOTP}
+                    disabled={sendOtp.isPending || !isValidGhPhone(phone)}
+                    className={`${primaryBtnCls} mt-6 group`}
+                  >
+                    {sendOtp.isPending ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Sending code…</>
+                    ) : (
+                      <>Continue <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" /></>
+                    )}
+                  </button>
+                </>
+              )}
+
+              {/* Step 2: OTP */}
+              {step === 'otp' && (
+                <>
+                  <h2 className="wcr-display text-2xl font-semibold tracking-tight">Check your phone</h2>
+                  <p className="text-[#5b6069] mt-1.5 mb-6">
+                    We sent a code to <span className="text-[#0e1116] font-medium">+{formatPhone(phone)}</span>.{' '}
+                    <button type="button" onClick={resetToPhone} className="text-[#ff5a2c] font-medium hover:underline underline-offset-2">
+                      Change
+                    </button>
                   </p>
-                  <p className="font-condensed font-bold text-yellow-300 text-sm leading-tight">{EVENT.date.monthYear}</p>
-                </div>
 
-                <div className="w-px self-stretch bg-gradient-to-b from-transparent via-yellow-400/40 to-transparent flex-shrink-0" />
+                  <div className="grid grid-cols-6 gap-2" onPaste={handleOtpPaste}>
+                    {otpCode.map((digit, i) => (
+                      <input
+                        key={i}
+                        ref={(el) => { otpRefs.current[i] = el; }}
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete={i === 0 ? 'one-time-code' : 'off'}
+                        aria-label={`Digit ${i + 1}`}
+                        maxLength={1}
+                        value={digit}
+                        onChange={(e) => handleOtpInput(i, e.target.value)}
+                        onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                        autoFocus={i === 0}
+                        className={`h-14 w-full text-center text-xl font-semibold rounded-xl border bg-[#f6f5f1] outline-none transition focus:bg-white focus:ring-4 ${
+                          otpError
+                            ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10'
+                            : digit
+                              ? 'border-[#0e1116]/40 bg-white focus:border-[#0e1116] focus:ring-[#ff5a2c]/10'
+                              : 'border-[#e6e3dc] focus:border-[#0e1116] focus:ring-[#ff5a2c]/10'
+                        }`}
+                      />
+                    ))}
+                  </div>
 
-                <div className="text-center flex-1">
-                  <p className="font-condensed font-bold text-white text-lg uppercase">{EVENT.city}</p>
-                  <p className="text-white/70 font-bold text-[11px] uppercase tracking-wider -mt-0.5">Start & Finish · Wellness Village</p>
-                  <p className="text-white/60 text-[11px] mt-0.5">{EVENT.venue}</p>
-                </div>
-              </div>
+                  {otpError && <p className="text-red-600 text-sm mt-3">{otpError}</p>}
+
+                  <button
+                    onClick={handleVerifyOTP}
+                    disabled={login.isPending || otpCode.join('').length < 4}
+                    className={`${primaryBtnCls} mt-6`}
+                  >
+                    {login.isPending ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Verifying…</>
+                    ) : (
+                      <>Verify & continue <ArrowRight className="w-4 h-4" /></>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleResendOTP}
+                    disabled={resendCountdown > 0 || sendOtp.isPending}
+                    className="w-full mt-4 text-sm text-[#5b6069] hover:text-[#0e1116] disabled:opacity-60 disabled:cursor-not-allowed transition"
+                  >
+                    {resendCountdown > 0
+                      ? `Resend code in ${resendCountdown}s`
+                      : sendOtp.isPending
+                        ? 'Sending…'
+                        : "Didn't get it? Resend code"}
+                  </button>
+                </>
+              )}
+
+              {/* Step 3: Signup */}
+              {step === 'signup' && (
+                <form onSubmit={handleSignup}>
+                  <h2 className="wcr-display text-2xl font-semibold tracking-tight">Complete your profile</h2>
+                  <p className="text-[#5b6069] mt-1.5 mb-6">
+                    One more step for <span className="text-[#0e1116] font-medium">+{formatPhone(phone)}</span>.
+                  </p>
+
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label htmlFor="wcr-first" className={labelCls}>First name</label>
+                        <input id="wcr-first" type="text" autoComplete="given-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} autoFocus className={inputCls} />
+                      </div>
+                      <div>
+                        <label htmlFor="wcr-last" className={labelCls}>Last name</label>
+                        <input id="wcr-last" type="text" autoComplete="family-name" value={lastName} onChange={(e) => setLastName(e.target.value)} className={inputCls} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="wcr-email" className={labelCls}>
+                        Email <span className="text-[#8a8d93] font-normal">· optional</span>
+                      </label>
+                      <input id="wcr-email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className={inputCls} />
+                    </div>
+
+                    <div>
+                      <label htmlFor="wcr-location" className={labelCls}>
+                        Location <span className="text-[#8a8d93] font-normal">· optional</span>
+                      </label>
+                      <input id="wcr-location" type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Takoradi" className={inputCls} />
+                    </div>
+
+                    <div>
+                      <label htmlFor="wcr-card" className={labelCls}>Ghana Card number</label>
+                      <input id="wcr-card" type="text" value={ghanaCard} onChange={handleGhanaCardChange} placeholder="GHA-XXXXXXXXX-X" className={`${inputCls} tracking-wider`} />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={register.isPending || !firstName.trim() || firstName.length < 2 || !lastName.trim() || lastName.length < 2 || !ghanaCard.trim()}
+                    className={`${primaryBtnCls} mt-6`}
+                  >
+                    {register.isPending ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Creating account…</>
+                    ) : (
+                      <>Create account <ArrowRight className="w-4 h-4" /></>
+                    )}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* ═══════ REGISTRATION PACKAGES (live) ═══════ */}
-          <div className="mb-5 slide-up" style={{ animationDelay: "0.26s" }}>
-            <SectionTitle>Registration</SectionTitle>
-            {packagesLoading ? (
-              <p className="text-white/60 text-xs text-center py-4">Loading categories…</p>
-            ) : packages.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {packages.map((pkg) => (
-                  <div key={pkg.id} className={`${cardCls} text-center flex flex-col`}>
-                    <p className="text-white/70 text-[11px] font-bold uppercase tracking-wider">{pkg.name}</p>
-                    <p className="font-condensed font-bold text-white text-2xl mt-1">{renderPrice(pkg.price)}</p>
-                    {pkg.merchandise.length > 0 && (
-                      <div className="flex flex-wrap justify-center gap-1 mt-2">
-                        {pkg.merchandise.map((item) => (
-                          <span key={item.id} className="bg-white/10 border border-white/10 text-white/75 text-[10px] font-bold rounded-full px-2 py-0.5">
-                            {item.name}
-                          </span>
+      {/* ═══════ PRICING (live packages) ═══════ */}
+      <section id="pricing" className="scroll-mt-16 border-t border-[#e6e3dc]">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 py-20 md:py-28">
+          <SectionHeading eyebrow="Registration" title="Pick your distance.">
+            {CORPORATE_TEAM_NOTE}
+          </SectionHeading>
+
+          {packagesLoading ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[0, 1, 2].map((i) => <div key={i} className="h-48 rounded-2xl bg-[#eeece6] animate-pulse" />)}
+            </div>
+          ) : packages.length > 0 ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {packages.map((pkg) => (
+                <article key={pkg.id} className="group flex flex-col rounded-2xl bg-white border border-[#e6e3dc] p-6 md:p-7 transition hover:border-[#0e1116]/30 hover:-translate-y-0.5">
+                  <h3 className="font-medium text-[#5b6069]">{pkg.name}</h3>
+                  <p className="wcr-display text-4xl font-semibold tracking-tight mt-3">{renderPrice(pkg.price)}</p>
+                  {pkg.benefits && <p className="text-sm text-[#5b6069] mt-3 leading-relaxed">{pkg.benefits}</p>}
+                  {pkg.merchandise.length > 0 && (
+                    <ul className="mt-5 pt-5 border-t border-[#eeece6] space-y-2">
+                      {pkg.merchandise.map((item) => (
+                        <li key={item.id} className="flex items-center gap-2 text-sm">
+                          <Check className="w-4 h-4 text-[#ff5a2c]" strokeWidth={2.25} /> {item.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <a href="#register" className="mt-auto pt-6 inline-flex items-center gap-1.5 text-sm font-medium text-[#0e1116] group-hover:text-[#ff5a2c] transition">
+                    Register <ArrowUpRight className="w-4 h-4" />
+                  </a>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="text-[#5b6069]">
+              Registration opens {EVENT.registrationOpens}. Categories and prices will appear here.
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* ═══════ INCLUDED + REWARDS ═══════ */}
+      <section className="bg-[#0e1116] text-white">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 py-20 md:py-28 grid lg:grid-cols-2 gap-14 lg:gap-20">
+          <div>
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[#ff5a2c] mb-3">Included</p>
+            <h2 className="wcr-display text-3xl md:text-[2.75rem] leading-[1.05] font-semibold tracking-tight">Every registrant gets</h2>
+            <ul className="mt-10 divide-y divide-white/10 border-y border-white/10">
+              {REGISTRATION_INCLUDES.map((item) => (
+                <li key={item} className="flex items-center gap-4 py-4 text-[17px]">
+                  <span className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                    <Check className="w-3.5 h-3.5 text-[#ff5a2c]" strokeWidth={2.5} />
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[#ff5a2c] mb-3">Rewards</p>
+            <h2 className="wcr-display text-3xl md:text-[2.75rem] leading-[1.05] font-semibold tracking-tight">Race for the podium</h2>
+            <p className="text-white/60 text-lg mt-4 leading-relaxed">
+              Top finishers in each category are recognized at the awards ceremony, and every finisher takes home a medal.
+            </p>
+            {prizePackages.length > 0 && (
+              <div className="mt-10 space-y-4">
+                {prizePackages.map((pkg) => (
+                  <div key={pkg.id} className="rounded-2xl bg-white/[0.04] border border-white/10 p-5">
+                    <div className="flex items-center gap-2 text-white/70 text-sm font-medium mb-2">
+                      <Trophy className="w-4 h-4 text-[#ff5a2c]" /> {pkg.name}
+                    </div>
+                    <ul className="divide-y divide-white/10">
+                      {[...pkg.prizes]
+                        .sort((a, b) => (a.position ?? 99) - (b.position ?? 99))
+                        .map((prize) => (
+                          <li key={prize.id ?? `${prize.position}-${prize.name}`} className="flex items-baseline justify-between gap-4 py-2.5">
+                            {prize.position ? <span className="text-sm text-white/50 w-10 shrink-0">{ordinal(prize.position)}</span> : <span />}
+                            {prize.amount ? (
+                              <span className="wcr-display text-lg font-semibold">{renderPrice(prize.amount)}</span>
+                            ) : (
+                              <span className="text-sm text-white/85 text-right">{prize.name}</span>
+                            )}
+                          </li>
                         ))}
-                      </div>
+                    </ul>
+                    {pkg.prizes.some((prize) => prize.description) && (
+                      <p className="text-white/50 text-sm mt-4">{pkg.prizes.find((prize) => prize.description)?.description}</p>
                     )}
-                    {pkg.benefits && <p className="text-white/60 text-[11px] mt-2 leading-snug">{pkg.benefits}</p>}
                   </div>
                 ))}
               </div>
-            ) : (
-              <p className="text-white/60 text-xs text-center">
-                Registration opens {EVENT.registrationOpens}. Categories and prices will appear here.
-              </p>
             )}
-            <p className="text-white/70 text-xs text-center mt-2.5 leading-relaxed">🏢 {CORPORATE_TEAM_NOTE}</p>
           </div>
+        </div>
+      </section>
 
-          {/* ═══════ WHAT YOU GET ═══════ */}
-          <div className="mb-5 slide-up" style={{ animationDelay: "0.30s" }}>
-            <SectionTitle>Every Registrant Gets</SectionTitle>
-            <ul className={`${cardCls} grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1.5`}>
-              {REGISTRATION_INCLUDES.map((item) => (
-                <li key={item} className="text-white/85 text-xs font-semibold flex gap-1.5">
-                  <span className="text-yellow-300">✓</span>{item}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* ═══════ REWARDS (from package prizes) ═══════ */}
-          <div className="mb-5 slide-up" style={{ animationDelay: "0.34s" }}>
-            <SectionTitle>Rewards</SectionTitle>
-            <div className={`${cardCls} text-center`}>
-              {prizePackages.map((pkg) => (
-                <div key={pkg.id} className="mb-2.5">
-                  <p className="text-white/70 text-[11px] font-bold uppercase tracking-wider mb-1">{pkg.name}</p>
-                  <p className="text-yellow-300 text-sm font-bold">
-                    {[...pkg.prizes]
-                      .sort((a, b) => (a.position ?? 99) - (b.position ?? 99))
-                      .map((prize) => `${prizeMedal(prize.position)} ${prize.amount ? renderPrice(prize.amount) : prize.name}`)
-                      .join('  ·  ')}
-                  </p>
-                  {pkg.prizes.some((prize) => prize.description) && (
-                    <p className="text-white/55 text-[11px] mt-0.5">
-                      {pkg.prizes.find((prize) => prize.description)?.description}
-                    </p>
-                  )}
-                </div>
-              ))}
-              <p className="text-white/70 text-xs leading-relaxed">
-                Top finishers in each race category are recognized at the awards ceremony, and every finisher takes home a medal.
-              </p>
+      {/* ═══════ RACE DAY ═══════ */}
+      <section id="race-day" className="scroll-mt-16">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 py-20 md:py-28">
+          <SectionHeading eyebrow="Race day" title="Along the Takoradi coast." />
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="rounded-2xl bg-white border border-[#e6e3dc] p-6 md:p-7">
+              <Waves className="w-6 h-6 text-[#ff5a2c]" strokeWidth={1.75} />
+              <h3 className="wcr-display text-xl font-semibold tracking-tight mt-5">The route</h3>
+              <p className="text-[#5b6069] mt-2 leading-relaxed">{EVENT_ROUTE}</p>
+            </div>
+            <div className="rounded-2xl bg-white border border-[#e6e3dc] p-6 md:p-7">
+              <Droplets className="w-6 h-6 text-[#ff5a2c]" strokeWidth={1.75} />
+              <h3 className="wcr-display text-xl font-semibold tracking-tight mt-5">Hydration</h3>
+              <p className="text-[#5b6069] mt-2 leading-relaxed">{EVENT_HYDRATION}</p>
+            </div>
+            <div className="rounded-2xl bg-white border border-[#e6e3dc] p-6 md:p-7">
+              <HeartPulse className="w-6 h-6 text-[#ff5a2c]" strokeWidth={1.75} />
+              <h3 className="wcr-display text-xl font-semibold tracking-tight mt-5">Wellness Village</h3>
+              <ul className="mt-2 space-y-2">
+                {WELLNESS_VILLAGE.map((item) => (
+                  <li key={item} className="flex gap-2 text-[#5b6069] leading-relaxed">
+                    <span className="mt-2.5 w-1 h-1 rounded-full bg-[#ff5a2c] shrink-0" />{item}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* ═══════ ROUTE & HYDRATION ═══════ */}
-          <div className="mb-5 slide-up" style={{ animationDelay: "0.38s" }}>
-            <SectionTitle>Route & Hydration</SectionTitle>
-            <div className={`${cardCls} space-y-2`}>
-              <p className="text-white/85 text-xs leading-relaxed"><span className="mr-1">🌊</span>{EVENT_ROUTE}</p>
-              <p className="text-white/85 text-xs leading-relaxed"><span className="mr-1">💧</span>{EVENT_HYDRATION}</p>
-            </div>
-          </div>
-
-          {/* ═══════ WELLNESS VILLAGE ═══════ */}
-          <div className="mb-5 slide-up" style={{ animationDelay: "0.42s" }}>
-            <SectionTitle>Post-Race Wellness Village</SectionTitle>
-            <ul className={`${cardCls} space-y-1.5`}>
-              {WELLNESS_VILLAGE.map((item) => (
-                <li key={item} className="text-white/85 text-xs font-semibold flex gap-1.5">
-                  <span className="text-yellow-300">•</span>{item}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* ═══════ WEEKEND PACKAGE (live add-ons) ═══════ */}
-          {addOns.length > 0 && (
-            <div className="mb-5 slide-up" style={{ animationDelay: "0.44s" }}>
-              <SectionTitle>Travelling? Weekend Package</SectionTitle>
-              <div className={`${cardCls} space-y-3`}>
-                <div className="flex flex-wrap justify-center gap-1.5">
-                  {WEEKEND_BUNDLES.filter((b) => b.id !== 'race').map((bundle) => (
-                    <span key={bundle.id} className="bg-white/10 border border-white/15 rounded-full px-2.5 py-0.5 text-white/85 text-[10px] font-bold uppercase tracking-wider">
-                      {bundle.label}
-                    </span>
-                  ))}
-                </div>
-                <ul className="space-y-1.5">
-                  {addOns.map((addOn) => (
-                    <li key={addOn.id} className="flex items-center justify-between gap-3 text-xs">
-                      <span className="text-white/85 font-semibold">
-                        {addOn.type === 'accommodation' ? '🏨' : '🚌'} {describeAddOn(addOn)}
+      {/* ═══════ WEEKEND PACKAGE (live add-ons) ═══════ */}
+      {addOns.length > 0 && (
+        <section className="border-t border-[#e6e3dc]">
+          <div className="max-w-6xl mx-auto px-5 md:px-8 py-20 md:py-28 grid lg:grid-cols-[0.9fr_1.1fr] gap-10 lg:gap-16">
+            <SectionHeading eyebrow="Travelling?" title="Make a weekend of it.">
+              Add transport, accommodation, or both when you register.
+            </SectionHeading>
+            <div>
+              <div className="flex flex-wrap gap-2 mb-5">
+                {WEEKEND_BUNDLES.filter((b) => b.id !== 'race').map((bundle) => (
+                  <span key={bundle.id} className="rounded-full bg-white border border-[#e6e3dc] px-3.5 py-1.5 text-sm font-medium">
+                    {bundle.label}
+                  </span>
+                ))}
+              </div>
+              <ul className="rounded-2xl bg-white border border-[#e6e3dc] divide-y divide-[#eeece6]">
+                {addOns.map((addOn) => {
+                  const Icon = addOn.type === 'accommodation' ? BedDouble : Bus;
+                  return (
+                    <li key={addOn.id} className="flex items-center justify-between gap-4 px-5 py-4">
+                      <span className="flex items-center gap-3 min-w-0">
+                        <Icon className="w-5 h-5 text-[#8a8d93] shrink-0" strokeWidth={1.75} />
+                        <span className="font-medium truncate">{describeAddOn(addOn)}</span>
                       </span>
-                      <span className="text-yellow-300 font-bold whitespace-nowrap">
-                        {addOn.remaining === 0 ? 'Fully booked' : `${renderPrice(addOn.price)}/person`}
+                      <span className={`text-sm whitespace-nowrap ${addOn.remaining === 0 ? 'text-[#a3a09a]' : 'font-semibold'}`}>
+                        {addOn.remaining === 0 ? 'Fully booked' : <>{renderPrice(addOn.price)}<span className="text-[#8a8d93] font-normal"> / person</span></>}
                       </span>
                     </li>
-                  ))}
-                </ul>
-                <p className="text-white/60 text-[11px] text-center">Add it to your registration when you sign up.</p>
-              </div>
-            </div>
-          )}
-
-          {/* ═══════ VEST SIZE GUIDE ═══════ */}
-          <div className="slide-up" style={{ animationDelay: "0.46s" }}>
-            <SectionTitle>Race Vest Size Guide</SectionTitle>
-            <div className={cardCls}>
-              <VestSizeTable tone="dark" />
+                  );
+                })}
+              </ul>
             </div>
           </div>
+        </section>
+      )}
 
+      {/* ═══════ VEST SIZE GUIDE ═══════ */}
+      <section className="border-t border-[#e6e3dc]">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 py-20 md:py-28 grid lg:grid-cols-[0.9fr_1.1fr] gap-10 lg:gap-16">
+          <SectionHeading eyebrow="Fit" title="Race vest size guide.">
+            Pick your vest size when you register.
+          </SectionHeading>
+          <div className="rounded-2xl bg-white border border-[#e6e3dc] p-5 md:p-7">
+            <VestSizeTable />
+          </div>
         </div>
+      </section>
 
-        {/* Shoreline */}
-        <div className="relative h-10 -mt-2 pointer-events-none">
-          <svg viewBox="0 0 400 40" preserveAspectRatio="none" className="absolute inset-0 w-full h-full opacity-40">
-            <path d="M0 40 L0 22 Q50 8 100 22 T200 22 T300 22 T400 22 L400 40 Z" fill="#155e75" />
-            <path d="M0 40 L0 30 Q50 18 100 30 T200 30 T300 30 T400 30 L400 40 Z" fill="#0c4a6e" />
-          </svg>
+      {/* ═══════ CLOSING CTA + FOOTER ═══════ */}
+      <footer className="bg-[#0e1116] text-white">
+        <div className="relative overflow-hidden">
+          <img
+            src={closingPhoto}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover object-[center_35%]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0e1116]/90 via-[#0e1116]/60 to-[#0e1116]/20" />
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0e1116] to-transparent" />
+          <div className="relative max-w-6xl mx-auto px-5 md:px-8 py-28 md:py-40 flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <h2 className="wcr-display text-4xl md:text-6xl font-semibold tracking-[-0.03em] leading-[1]">
+              See you at the<br />start line<span className="text-[#ff5a2c]">.</span>
+            </h2>
+            <a
+              href="#register"
+              className="inline-flex items-center gap-2 h-12 px-6 rounded-full bg-[#ff5a2c] text-white font-semibold hover:bg-white hover:text-[#0e1116] transition self-start md:self-auto"
+            >
+              Register now <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
         </div>
-
-        {/* Bottom strip */}
-        <div className="h-2 bg-gradient-to-r from-yellow-400 via-cyan-400 to-yellow-400" />
-      </div>
+        <div className="max-w-6xl mx-auto px-5 md:px-8 pb-10">
+          <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between gap-3 text-sm text-white/50">
+            <p>{EVENT.name} · {EVENT.date.long} · {EVENT.city}<span className="block text-white/30 text-xs mt-1">Photos: Justin Lagat / Unsplash</span></p>
+            <button onClick={() => navigate('/login')} className="text-left sm:text-right hover:text-white transition">
+              Staff login
+            </button>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
